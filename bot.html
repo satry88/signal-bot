@@ -5,183 +5,520 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>⚡ Signal Bot Pro</title>
 <style>
-:root{--bg:#060a0f;--panel:#0d1117;--border:#1a2332;--green:#00ff88;--red:#ff3355;--gold:#f59e0b;--blue:#38bdf8;--text:#e2e8f0;--muted:#64748b;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Segoe UI',Tahoma,sans-serif;}
-.header{background:linear-gradient(135deg,#0d1117,#1a2332);padding:14px 16px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;}
-.logo{font-size:17px;font-weight:900;color:var(--green);}
-.logo span{color:var(--muted);font-size:10px;display:block;}
-.refresh-btn{background:rgba(0,255,136,0.1);border:1px solid var(--green);color:var(--green);padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-weight:700;}
-.tabs{display:flex;gap:4px;padding:12px 16px;overflow-x:auto;scrollbar-width:none;}
-.tab{flex-shrink:0;padding:8px 16px;border-radius:20px;border:1px solid var(--border);color:var(--muted);font-size:13px;cursor:pointer;font-weight:600;}
-.tab.active{background:var(--green);color:#000;border-color:var(--green);}
-.timeframes{display:flex;gap:6px;padding:0 16px 12px;}
-.tf{padding:5px 12px;border-radius:6px;font-size:12px;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-weight:700;}
-.tf.active{background:rgba(56,189,248,0.15);color:var(--blue);border-color:var(--blue);}
-.signal-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;margin:0 16px 10px;overflow:hidden;}
-.signal-card.buy{border-right:4px solid var(--green);}
-.signal-card.sell{border-right:4px solid var(--red);}
-.signal-card.neutral{border-right:4px solid var(--muted);}
-.card-top{display:flex;align-items:center;justify-content:space-between;padding:12px 14px 8px;}
-.sym{font-size:17px;font-weight:900;font-family:monospace;}
-.price{font-size:14px;font-weight:700;font-family:monospace;}
-.chg{font-size:11px;}
-.sig-badge{padding:7px 12px;border-radius:8px;font-weight:900;font-size:13px;}
-.sig-badge.buy{background:rgba(0,255,136,0.12);color:var(--green);}
-.sig-badge.sell{background:rgba(255,51,85,0.12);color:var(--red);}
-.sig-badge.neutral{background:rgba(100,116,139,0.12);color:var(--muted);}
-.inds{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:0 10px 10px;}
-.ind{background:var(--bg);border-radius:7px;padding:7px;text-align:center;}
-.ind-n{font-size:9px;color:var(--muted);margin-bottom:2px;}
-.ind-v{font-size:11px;font-weight:700;font-family:monospace;}
-.ind-s{font-size:9px;margin-top:2px;font-weight:600;}
-.str-row{padding:0 14px 10px;}
-.str-lbl{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px;}
-.str-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
-.str-fill{height:100%;border-radius:3px;}
-.loading{text-align:center;padding:40px 16px;color:var(--muted);}
-.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.section-title{padding:6px 16px;font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;}
-.last-update{color:var(--blue);font-size:11px;text-align:center;padding:6px;}
-.status{font-size:11px;color:var(--muted);text-align:center;padding:4px;}
-.footer{text-align:center;padding:16px;color:var(--muted);font-size:10px;line-height:1.8;}
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Tajawal:wght@400;700;900&display=swap');
+
+:root {
+  --bg: #080c12;
+  --panel: #0d1420;
+  --border: #1a2535;
+  --green: #00e676;
+  --red: #ff4444;
+  --blue: #29b6f6;
+  --gold: #ffd54f;
+  --muted: #4a6080;
+  --text: #c8d8e8;
+  --white: #eaf2ff;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family: 'Tajawal', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  padding-bottom: 24px;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg,#0d1420,#0a1628);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 16px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo { font-size:18px; font-weight:900; color:var(--white); letter-spacing:-0.5px; }
+.logo span { display:block; font-size:10px; font-weight:400; color:var(--muted); font-family:'IBM Plex Mono',monospace; }
+.refresh-btn {
+  background: rgba(41,182,246,0.12);
+  border: 1px solid rgba(41,182,246,0.3);
+  color: var(--blue);
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: 'Tajawal',sans-serif;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+.refresh-btn:active { transform:scale(0.96); }
+@keyframes spin { to { transform:rotate(360deg); } }
+.spinning { animation:spin 1s linear infinite; }
+
+/* Setup */
+.setup-box {
+  margin:20px 16px;
+  background:var(--panel);
+  border:1px solid #1e3050;
+  border-radius:14px;
+  padding:20px;
+}
+.setup-box h3 { font-size:16px; color:var(--blue); margin-bottom:12px; }
+.setup-info {
+  background:rgba(255,213,79,0.08);
+  border:1px solid rgba(255,213,79,0.2);
+  border-radius:8px;
+  padding:10px 12px;
+  font-size:12px;
+  color:var(--gold);
+  margin-bottom:14px;
+  line-height:1.7;
+  font-family:'IBM Plex Mono',monospace;
+}
+.api-input {
+  width:100%; background:#080c12; border:1px solid var(--border); border-radius:8px;
+  padding:11px 13px; color:var(--white); font-size:13px;
+  font-family:'IBM Plex Mono',monospace; direction:ltr; margin-bottom:10px; outline:none;
+  transition:border-color 0.2s;
+}
+.api-input:focus { border-color:var(--blue); }
+.save-btn {
+  width:100%; background:linear-gradient(135deg,#29b6f6,#0288d1);
+  border:none; border-radius:10px; padding:13px; color:#fff;
+  font-size:15px; font-weight:700; font-family:'Tajawal',sans-serif; cursor:pointer;
+}
+.save-btn:active { opacity:0.85; }
+.err-msg { color:var(--red); font-size:12px; margin-bottom:8px; min-height:18px; }
+
+/* Tabs */
+.tabs {
+  display:flex; padding:12px 16px 0; gap:6px;
+  border-bottom:1px solid var(--border); background:var(--bg);
+}
+.tab {
+  flex:1; text-align:center; padding:9px 4px; font-size:13px; font-weight:700;
+  color:var(--muted); cursor:pointer; border-bottom:2px solid transparent;
+  transition:all 0.2s; border-radius:4px 4px 0 0;
+}
+.tab.active { color:var(--blue); border-bottom-color:var(--blue); }
+
+/* Timeframes */
+.timeframes { display:flex; padding:10px 16px; gap:6px; flex-wrap:wrap; align-items:center; }
+.tf {
+  padding:5px 12px; border-radius:20px; font-size:11px; font-weight:700;
+  font-family:'IBM Plex Mono',monospace; color:var(--muted);
+  background:var(--panel); border:1px solid var(--border); cursor:pointer; transition:all 0.2s;
+}
+.tf.active { color:var(--bg); background:var(--blue); border-color:var(--blue); }
+.tf-note { font-size:10px; color:var(--muted); font-family:'IBM Plex Mono',monospace; }
+
+/* Status */
+.status-bar { text-align:center; font-size:11px; color:var(--muted); padding:4px 16px; font-family:'IBM Plex Mono',monospace; min-height:22px; }
+.last-update { text-align:center; font-size:10px; color:var(--muted); padding:2px 16px 8px; font-family:'IBM Plex Mono',monospace; }
+.section-title { padding:6px 16px 4px; font-size:10px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:1.5px; font-family:'IBM Plex Mono',monospace; }
+
+/* Cards */
+.card {
+  margin:0 12px 8px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:13px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.card.buy  { border-right:3px solid var(--green); }
+.card.sell { border-right:3px solid var(--red); }
+.card.hold { border-right:3px solid #546e7a; }
+.card-left { flex:1; min-width:0; }
+.card-sym { font-size:15px; font-weight:900; color:var(--white); font-family:'IBM Plex Mono',monospace; }
+.card-name { font-size:10px; color:var(--muted); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.card-mid { text-align:center; }
+.card-price { font-size:14px; font-weight:700; color:var(--white); font-family:'IBM Plex Mono',monospace; white-space:nowrap; }
+.card-change { font-size:11px; font-family:'IBM Plex Mono',monospace; margin-top:1px; }
+.card-change.up { color:var(--green); }
+.card-change.dn { color:var(--red); }
+.card-right { text-align:left; }
+.signal-badge {
+  display:inline-block; padding:5px 10px; border-radius:20px;
+  font-size:11px; font-weight:700; font-family:'IBM Plex Mono',monospace; white-space:nowrap;
+}
+.signal-badge.BUY  { background:rgba(0,230,118,0.15); color:var(--green); border:1px solid rgba(0,230,118,0.3); }
+.signal-badge.SELL { background:rgba(255,68,68,0.15);  color:var(--red);   border:1px solid rgba(255,68,68,0.3); }
+.signal-badge.HOLD { background:rgba(84,110,122,0.2);  color:#90a4ae;      border:1px solid rgba(84,110,122,0.3); }
+.card-indicators { font-size:9px; color:var(--muted); margin-top:4px; font-family:'IBM Plex Mono',monospace; text-align:left; line-height:1.5; }
+.strength-wrap { margin-top:5px; display:flex; align-items:center; gap:6px; }
+.strength-bar { flex:1; height:3px; background:var(--border); border-radius:3px; overflow:hidden; }
+.strength-fill { height:100%; border-radius:3px; transition:width 0.5s ease; }
+.strength-val { font-size:9px; color:var(--muted); font-family:'IBM Plex Mono',monospace; }
+
+/* Loading / Error */
+.loading { text-align:center; padding:40px 16px; color:var(--muted); font-size:13px; }
+.spinner { width:32px; height:32px; border:2px solid var(--border); border-top-color:var(--blue); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 14px; }
+.error-card { margin:0 12px 8px; background:rgba(255,68,68,0.07); border:1px solid rgba(255,68,68,0.2); border-radius:10px; padding:12px; font-size:11px; color:#ff8a80; text-align:center; font-family:'IBM Plex Mono',monospace; line-height:1.6; }
+.key-row { display:flex; align-items:center; justify-content:center; gap:8px; padding:6px 16px 10px; font-size:10px; color:var(--muted); font-family:'IBM Plex Mono',monospace; }
+.change-key-btn { background:none; border:none; color:var(--muted); font-size:11px; cursor:pointer; text-decoration:underline; font-family:'Tajawal',sans-serif; }
+.footer { text-align:center; padding:16px; color:var(--muted); font-size:10px; line-height:1.8; font-family:'IBM Plex Mono',monospace; }
 </style>
 </head>
 <body>
+
 <div class="header">
-  <div class="logo">⚡ Signal Bot Pro<span>Binance + Finnhub • حقيقي</span></div>
-  <button class="refresh-btn" onclick="loadAll()">🔄 تحديث</button>
+  <div class="logo">
+    ⚡ Signal Bot
+    <span>Binance + Finnhub • حقيقي</span>
+  </div>
+  <button class="refresh-btn" id="refreshBtn" onclick="loadAll()">🔄 تحديث</button>
 </div>
-<div class="tabs">
-  <div class="tab active" onclick="switchTab('crypto',this)">₿ عملات</div>
-  <div class="tab" onclick="switchTab('stocks',this)">📈 أسهم</div>
-  <div class="tab" onclick="switchTab('metals',this)">🥇 معادن</div>
+
+<!-- Setup -->
+<div class="setup-box" id="setupBox">
+  <h3>🔑 Finnhub API Key</h3>
+  <div class="setup-info">
+    1. finnhub.io → Register مجاني<br>
+    2. انسخ API Key<br>
+    3. ألصقه هنا واضغط تشغيل
+  </div>
+  <input class="api-input" id="fhKey" type="password" placeholder="your_api_key_here" autocomplete="off">
+  <div id="setupErr" class="err-msg"></div>
+  <button class="save-btn" onclick="saveAndStart()">⚡ تشغيل البوت</button>
 </div>
-<div class="timeframes">
-  <div class="tf active" onclick="switchTF('1h',this)">1H</div>
-  <div class="tf" onclick="switchTF('4h',this)">4H</div>
-  <div class="tf" onclick="switchTF('1d',this)">1D</div>
-  <div class="tf" onclick="switchTF('1w',this)">1W</div>
+
+<!-- Main -->
+<div id="mainContent" style="display:none">
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('crypto',this)">₿ عملات</div>
+    <div class="tab" onclick="switchTab('stocks',this)">📈 أسهم</div>
+    <div class="tab" onclick="switchTab('metals',this)">🥇 معادن</div>
+  </div>
+  <div class="timeframes" id="tfRow"></div>
+  <div class="status-bar" id="statusMsg"></div>
+  <div class="last-update" id="lastUpdate"></div>
+  <div id="container"></div>
+  <div class="key-row">
+    <span id="keyHint"></span>
+    <button class="change-key-btn" onclick="changeKey()">تغيير المفتاح</button>
+  </div>
 </div>
-<div id="statusMsg" class="status"></div>
-<div id="lastUpdate" class="last-update"></div>
-<div id="container"></div>
-<div class="footer">⚠️ للأغراض التعليمية فقط<br>Signal Bot Pro © 2026</div>
+
+<div class="footer">⚠️ للأغراض التعليمية فقط • ليس توصية استثمارية<br>Signal Bot Pro © 2026</div>
 
 <script>
-const BASE = window.location.origin; // Railway URL automatically
-
+// ─────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────
 const SYMBOLS = {
-  crypto: ['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT','DOGEUSDT','ADAUSDT','AVAXUSDT','DOTUSDT','LINKUSDT'],
+  crypto: ['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT','DOGEUSDT','ADAUSDT','AVAXUSDT'],
   stocks: ['NVDA','AAPL','MSFT','META','GOOG','TSLA','AMZN','PLTR'],
-  metals: ['XAUUSD','XAGUSD']
+  metals: ['OANDA:XAU_USD','OANDA:XAG_USD']
+};
+const NAMES = {
+  BTCUSDT:'Bitcoin',ETHUSDT:'Ethereum',SOLUSDT:'Solana',BNBUSDT:'BNB',
+  XRPUSDT:'Ripple',DOGEUSDT:'Dogecoin',ADAUSDT:'Cardano',AVAXUSDT:'Avalanche',
+  NVDA:'NVIDIA',AAPL:'Apple',MSFT:'Microsoft',META:'Meta',
+  GOOG:'Google',TSLA:'Tesla',AMZN:'Amazon',PLTR:'Palantir',
+  'OANDA:XAU_USD':'Gold (XAU/USD)','OANDA:XAG_USD':'Silver (XAG/USD)'
 };
 
-let tab='crypto', tf='1h';
+// proxy base — same origin as the page (Railway server)
+const BASE = window.location.origin;
 
-window.onload = () => loadAll();
+let FH_KEY = localStorage.getItem('fh_key') || '';
+let currentTab = 'crypto', currentTF = '1h', loading = false;
 
-function switchTab(t,el){tab=t;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));el.classList.add('active');loadAll();}
-function switchTF(t,el){tf=t;document.querySelectorAll('.tf').forEach(x=>x.classList.remove('active'));el.classList.add('active');loadAll();}
-
-async function fetchBinance(sym){
-  const r=await fetch(`https://api.binance.com/api/v3/klines?symbol=${sym}&interval=${tf}&limit=150`);
-  const d=await r.json();
-  return{c:d.map(x=>+x[4]),h:d.map(x=>+x[2]),l:d.map(x=>+x[3]),v:d.map(x=>+x[5])};
+// ─────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────
+window.onload = () => {
+  if (FH_KEY) { showMain(); loadAll(); }
+};
+function showMain() {
+  document.getElementById('setupBox').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+  const m = FH_KEY.slice(0,4)+'****'+FH_KEY.slice(-4);
+  document.getElementById('keyHint').textContent = '🔑 '+m;
+  renderTFRow();
+}
+function saveAndStart() {
+  const k = document.getElementById('fhKey').value.trim();
+  if (!k) { document.getElementById('setupErr').textContent='⚠️ أدخل الـ API Key'; return; }
+  document.getElementById('setupErr').textContent='';
+  FH_KEY = k;
+  localStorage.setItem('fh_key', k);
+  showMain(); loadAll();
+}
+function changeKey() {
+  localStorage.removeItem('fh_key'); FH_KEY='';
+  document.getElementById('mainContent').style.display='none';
+  document.getElementById('setupBox').style.display='block';
+  document.getElementById('fhKey').value='';
 }
 
-async function fetchProxy(sym,type='stock'){
-  // Finnhub Free Plan: only Daily data for stocks/forex (no intraday)
-  const res='D';
-  const to=Math.floor(Date.now()/1000);
-  const from=to-300*86400; // 300 days back
-  const r=await fetch(`${BASE}/candle?symbol=${sym}&resolution=${res}&from=${from}&to=${to}&type=${type}`);
-  const d=await r.json();
-  if(d.s!=='ok')throw new Error('No data');
-  return{c:d.c,h:d.h,l:d.l,v:d.v};
+// ─────────────────────────────────────────
+// TAB / TF SWITCH
+// ─────────────────────────────────────────
+function switchTab(t, el) {
+  currentTab = t;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  currentTF = (t === 'crypto') ? '1h' : '1d';
+  renderTFRow();
+  loadAll();
 }
-
-function rsi(c,p=14){if(c.length<p+1)return null;let g=0,l=0;for(let i=1;i<=p;i++){const d=c[i]-c[i-1];d>0?g+=d:l-=d;}let ag=g/p,al=l/p;for(let i=p+1;i<c.length;i++){const d=c[i]-c[i-1];ag=(ag*(p-1)+(d>0?d:0))/p;al=(al*(p-1)+(d<0?-d:0))/p;}return al===0?100:Math.round(100-100/(1+ag/al));}
-function ema(c,p){if(c.length<p)return null;const k=2/(p+1);let e=c.slice(0,p).reduce((a,b)=>a+b)/p;for(let i=p;i<c.length;i++)e=c[i]*k+e*(1-k);return e;}
-function macd(c){const e12=ema(c,12),e26=ema(c,26);if(!e12||!e26)return null;return{val:+(e12-e26).toFixed(4),bull:e12>e26};}
-function bb(c,p=20){if(c.length<p)return null;const s=c.slice(-p),m=s.reduce((a,b)=>a+b)/p;const std=Math.sqrt(s.reduce((a,b)=>a+(b-m)**2)/p);return{u:m+2*std,m,l:m-2*std};}
-function stoch(c,h,l,p=14){if(c.length<p)return null;const hh=Math.max(...h.slice(-p)),ll=Math.min(...l.slice(-p));return hh===ll?50:Math.round((c[c.length-1]-ll)/(hh-ll)*100);}
-
-function analyze(data,sym){
-  const c=data.c,h=data.h,l=data.l,v=data.v||[];
-  const price=c[c.length-1],prev=c[c.length-2];
-  const chg=(price-prev)/prev*100;
-  const R=rsi(c),M=macd(c),B=bb(c),ST=stoch(c,h,l);
-  const E20=ema(c,20),E50=ema(c,50);
-  let buy=0,sell=0,rS='⚪',mS='⚪',bS='⚪',eS='⚪',sS='⚪',vS='⚪';
-  if(R!==null){if(R<30){buy+=25;rS='🟢 ذروة بيع';}else if(R<45){buy+=10;rS='🟡 منخفض';}else if(R>70){sell+=25;rS='🔴 ذروة شراء';}else if(R>55){sell+=10;rS='🟡 مرتفع';}else rS='⚪ محايد';}
-  if(M){M.bull?(buy+=20,mS='🟢 صاعد'):(sell+=20,mS='🔴 هابط');}
-  if(B){if(price<B.l){buy+=20;bS='🟢 أسفل';}else if(price>B.u){sell+=20;bS='🔴 أعلى';}else if(price<B.m){buy+=5;bS='🟡 أسفل وسط';}else{sell+=5;bS='🟡 أعلى وسط';}}
-  if(E20&&E50){if(E20>E50&&price>E20){buy+=20;eS='🟢 صاعد';}else if(E20<E50&&price<E20){sell+=20;eS='🔴 هابط';}else eS='⚪ محايد';}
-  if(ST!==null){if(ST<20){buy+=15;sS='🟢 ذروة بيع';}else if(ST>80){sell+=15;sS='🔴 ذروة شراء';}else sS='⚪ محايد';}
-  if(v.length>10){const avg=v.slice(-11,-1).reduce((a,b)=>a+b)/10,cur=v[v.length-1];if(cur>avg*1.3){chg>0?(buy+=10,vS='🟢 مرتفع'):(sell+=10,vS='🔴 مرتفع');}else vS='⚪ عادي';}
-  const signal=buy>sell+20?'buy':sell>buy+20?'sell':'neutral';
-  const str=Math.round(Math.max(buy,sell)/(buy+sell||1)*100);
-  return{sym,price,chg,signal,str,buy,sell,R,M,B,ST,E20,E50,rS,mS,bS,eS,sS,vS};
+function switchTF(t, el) {
+  currentTF = t;
+  document.querySelectorAll('.tf').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  loadAll();
 }
-
-function card(s){
-  const cc=s.chg>=0?'var(--green)':'var(--red)';
-  const sc=s.signal==='buy'?'var(--green)':s.signal==='sell'?'var(--red)':'var(--muted)';
-  const em=s.signal==='buy'?'🟢 شراء':s.signal==='sell'?'🔴 بيع':'⚪ محايد';
-  const fp=s.signal==='neutral'?50:s.str;
-  const pf=s.price<0.001?s.price.toFixed(6):s.price<1?s.price.toFixed(4):s.price<100?s.price.toFixed(3):s.price.toFixed(2);
-  const tfL={'1h':'1H','4h':'4H','1d':'1D','1w':'1W'}[tf];
-  return`<div class="signal-card ${s.signal}">
-    <div class="card-top">
-      <div><div class="sym">${s.sym}</div><div style="font-size:10px;color:var(--muted)">${tfL}</div></div>
-      <div style="text-align:center"><div class="price" style="color:${cc}">${pf}</div><div class="chg" style="color:${cc}">${s.chg>=0?'+':''}${s.chg.toFixed(2)}%</div></div>
-      <div class="sig-badge ${s.signal}">${em}</div>
-    </div>
-    <div class="str-row">
-      <div class="str-lbl"><span>🟢 ${s.buy}</span><span>قوة ${s.str}%</span><span>${s.sell} 🔴</span></div>
-      <div class="str-bar"><div class="str-fill" style="width:${fp}%;background:${sc}"></div></div>
-    </div>
-    <div class="inds">
-      <div class="ind"><div class="ind-n">RSI(14)</div><div class="ind-v">${s.R??'-'}</div><div class="ind-s">${s.rS}</div></div>
-      <div class="ind"><div class="ind-n">MACD</div><div class="ind-v" style="font-size:10px">${s.M?s.M.val:'-'}</div><div class="ind-s">${s.mS}</div></div>
-      <div class="ind"><div class="ind-n">Stoch</div><div class="ind-v">${s.ST??'-'}</div><div class="ind-s">${s.sS}</div></div>
-      <div class="ind"><div class="ind-n">EMA20</div><div class="ind-v" style="font-size:10px">${s.E20?s.E20.toFixed(2):'-'}</div><div class="ind-s">${s.eS}</div></div>
-      <div class="ind"><div class="ind-n">BB Upper</div><div class="ind-v" style="font-size:10px">${s.B?s.B.u.toFixed(2):'-'}</div><div class="ind-s">${s.bS}</div></div>
-      <div class="ind"><div class="ind-n">Volume</div><div class="ind-v">📊</div><div class="ind-s">${s.vS}</div></div>
-    </div>
-  </div>`;
-}
-
-async function loadAll(){
-  const con=document.getElementById('container');
-  con.innerHTML=`<div class="loading"><div class="spinner"></div>جاري التحليل...</div>`;
-  const syms=SYMBOLS[tab];
-  const results=[];
-  let ok=0,fail=0;
-  for(const sym of syms){
-    try{
-      let data;
-      if(tab==='crypto') data=await fetchBinance(sym);
-      else if(tab==='stocks') data=await fetchProxy(sym,'stock');
-      else data=await fetchProxy(sym,'forex');
-      if(data?.c?.length>20){results.push(analyze(data,tab==='crypto'?sym.replace('USDT',''):sym));ok++;}
-    }catch(e){fail++;console.warn(sym,e.message);}
+function renderTFRow() {
+  const row = document.getElementById('tfRow');
+  if (currentTab === 'crypto') {
+    row.innerHTML = `
+      <div class="tf ${currentTF==='1h'?'active':''}" onclick="switchTF('1h',this)">1H</div>
+      <div class="tf ${currentTF==='4h'?'active':''}" onclick="switchTF('4h',this)">4H</div>
+      <div class="tf ${currentTF==='1d'?'active':''}" onclick="switchTF('1d',this)">1D</div>
+      <div class="tf ${currentTF==='1w'?'active':''}" onclick="switchTF('1w',this)">1W</div>`;
+  } else {
+    row.innerHTML = `
+      <div class="tf ${currentTF==='1d'?'active':''}" onclick="switchTF('1d',this)">1D</div>
+      <div class="tf ${currentTF==='1w'?'active':''}" onclick="switchTF('1w',this)">1W</div>
+      <span class="tf-note">⚠️ Free Plan: Daily فقط</span>`;
   }
-  document.getElementById('statusMsg').textContent=`✅ ${ok} رمز • ❌ ${fail} فشل`;
-  results.sort((a,b)=>{const o={buy:0,sell:1,neutral:2};return o[a.signal]!==o[b.signal]?o[a.signal]-o[b.signal]:b.str-a.str;});
-  if(!results.length){con.innerHTML=`<div class="loading" style="color:var(--red)">❌ لا توجد بيانات</div>`;return;}
-  const buys=results.filter(r=>r.signal==='buy');
-  const sells=results.filter(r=>r.signal==='sell');
-  const neut=results.filter(r=>r.signal==='neutral');
-  let html='';
-  if(buys.length) html+=`<div class="section-title">🟢 شراء (${buys.length})</div>`+buys.map(card).join('');
-  if(sells.length) html+=`<div class="section-title">🔴 بيع (${sells.length})</div>`+sells.map(card).join('');
-  if(neut.length) html+=`<div class="section-title">⚪ محايد (${neut.length})</div>`+neut.map(card).join('');
-  con.innerHTML=html;
-  document.getElementById('lastUpdate').textContent=`آخر تحديث: ${new Date().toLocaleTimeString('ar')}`;
 }
+
+// ─────────────────────────────────────────
+// MAIN LOADER
+// ─────────────────────────────────────────
+async function loadAll() {
+  if (loading) return;
+  loading = true;
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning'); btn.disabled = true;
+  document.getElementById('container').innerHTML =
+    '<div class="loading"><div class="spinner"></div>جارٍ التحليل...</div>';
+  document.getElementById('statusMsg').textContent = '';
+
+  const syms = SYMBOLS[currentTab];
+  const results = [];
+
+  for (const sym of syms) {
+    try {
+      let data;
+      if (currentTab === 'crypto') data = await fetchBinance(sym, currentTF);
+      else if (currentTab === 'stocks') data = await fetchStock(sym, currentTF);
+      else data = await fetchMetals(sym, currentTF);
+      results.push(data);
+    } catch(e) {
+      results.push({ sym, error: e.message });
+    }
+    if (currentTab !== 'crypto') await delay(250); // rate limit
+  }
+
+  renderCards(results);
+  document.getElementById('lastUpdate').textContent =
+    'آخر تحديث: ' + new Date().toLocaleTimeString('ar-EG');
+  loading = false;
+  btn.classList.remove('spinning'); btn.disabled = false;
+}
+
+// ─────────────────────────────────────────
+// DATA FETCHERS
+// ─────────────────────────────────────────
+
+// Crypto: Binance public API (no key, no CORS issue)
+async function fetchBinance(symbol, tf) {
+  const iMap = {'1h':'1h','4h':'4h','1d':'1d','1w':'1w'};
+  const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${iMap[tf]||'1d'}&limit=52`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('Binance ' + r.status);
+  const raw = await r.json();
+  if (raw.length < 14) throw new Error('بيانات غير كافية');
+  const closes = raw.map(c=>+c[4]);
+  const highs  = raw.map(c=>+c[2]);
+  const lows   = raw.map(c=>+c[3]);
+  const vols   = raw.map(c=>+c[5]);
+  return buildResult(symbol, closes, highs, lows, vols);
+}
+
+// Stocks: via server-side proxy → /api/stock
+async function fetchStock(symbol, tf) {
+  const res = tf === '1w' ? 'W' : 'D';
+  const days = tf === '1w' ? 400 : 150;
+  const { from, to } = dateRange(days);
+  const url = `${BASE}/api/stock?symbol=${symbol}&resolution=${res}&from=${from}&to=${to}&token=${FH_KEY}`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const d = await r.json();
+  if (d.s === 'no_data' || !d.c || d.c.length < 14) throw new Error('لا توجد بيانات');
+  return buildResult(symbol, d.c, d.h, d.l, d.v);
+}
+
+// Metals: via server-side proxy → /api/forex
+async function fetchMetals(symbol, tf) {
+  const res = tf === '1w' ? 'W' : 'D';
+  const days = tf === '1w' ? 400 : 150;
+  const { from, to } = dateRange(days);
+  const url = `${BASE}/api/forex?symbol=${symbol}&resolution=${res}&from=${from}&to=${to}&token=${FH_KEY}`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const d = await r.json();
+  if (d.s === 'no_data' || !d.c || d.c.length < 14) throw new Error('لا بيانات');
+  const vols = d.v || new Array(d.c.length).fill(1);
+  return buildResult(symbol, d.c, d.h, d.l, vols);
+}
+
+// ─────────────────────────────────────────
+// RESULT BUILDER
+// ─────────────────────────────────────────
+function buildResult(sym, closes, highs, lows, vols) {
+  const price  = closes[closes.length-1];
+  const prev   = closes[closes.length-2];
+  const change = ((price-prev)/prev)*100;
+  const rsi    = calcRSI(closes, 14);
+  const macd   = calcMACD(closes);
+  const ema50  = calcEMA(closes, 50);
+  const ema200 = calcEMA(closes, 200);
+  const bb     = calcBB(closes, 20, 2);
+  const stoch  = calcStoch(highs, lows, closes, 14);
+  const signal   = genSignal(rsi, macd, closes, ema50, ema200, bb, stoch);
+  const strength = calcStrength(rsi, macd, closes, ema50, bb, stoch);
+  return { sym, price, change, rsi, macd, ema50, bb, stoch, signal, strength };
+}
+
+// ─────────────────────────────────────────
+// INDICATORS
+// ─────────────────────────────────────────
+function calcRSI(c, p=14) {
+  if (c.length < p+1) return 50;
+  let g=0, l=0;
+  for (let i=c.length-p; i<c.length; i++) { const d=c[i]-c[i-1]; d>0?g+=d:l-=d; }
+  return 100-(100/(1+g/(l||0.0001)));
+}
+function calcEMA(c, p) {
+  if (c.length < p) return c[c.length-1];
+  const k=2/(p+1);
+  let e=c.slice(0,p).reduce((a,b)=>a+b,0)/p;
+  for (let i=p;i<c.length;i++) e=c[i]*k+e*(1-k);
+  return e;
+}
+function calcMACD(c) {
+  const e12=calcEMA(c,12), e26=calcEMA(c,26), line=e12-e26;
+  const ms=[]; for(let i=26;i<=c.length;i++){const a=calcEMA(c.slice(0,i),12);const b=calcEMA(c.slice(0,i),26);ms.push(a-b);}
+  const sig=calcEMA(ms,9);
+  return { line, signal:sig, hist:line-sig };
+}
+function calcBB(c, p=20, m=2) {
+  if (c.length<p) return {upper:0,lower:0,mid:0};
+  const s=c.slice(-p), mid=s.reduce((a,b)=>a+b,0)/p;
+  const sd=Math.sqrt(s.reduce((a,b)=>a+(b-mid)**2,0)/p);
+  return { upper:mid+m*sd, lower:mid-m*sd, mid };
+}
+function calcStoch(h, l, c, p=14) {
+  const n=c.length; if(n<p) return 50;
+  const hi=Math.max(...h.slice(-p)), lo=Math.min(...l.slice(-p));
+  return lo===hi?50:((c[n-1]-lo)/(hi-lo))*100;
+}
+
+// ─────────────────────────────────────────
+// SIGNAL ENGINE
+// ─────────────────────────────────────────
+function genSignal(rsi, macd, closes, ema50, ema200, bb, stoch) {
+  const price=closes[closes.length-1]; let score=0;
+  if (rsi<30) score+=2; else if(rsi<45) score+=1;
+  else if(rsi>70) score-=2; else if(rsi>55) score-=1;
+  if (macd.hist>0&&macd.line>0) score+=2; else if(macd.hist>0) score+=1;
+  else if(macd.hist<0&&macd.line<0) score-=2; else if(macd.hist<0) score-=1;
+  if (price>ema50&&ema50>ema200) score+=2; else if(price>ema50) score+=1;
+  else if(price<ema50&&ema50<ema200) score-=2; else if(price<ema50) score-=1;
+  if (price<bb.lower) score+=1; else if(price>bb.upper) score-=1;
+  if (stoch<20) score+=1; else if(stoch>80) score-=1;
+  return score>=3?'BUY':score<=-3?'SELL':'HOLD';
+}
+function calcStrength(rsi, macd, closes, ema50, bb, stoch) {
+  const price=closes[closes.length-1]; let pts=0;
+  if(rsi<30||rsi>70) pts+=20; else pts+=10;
+  if(Math.abs(macd.hist)>0) pts+=20;
+  if(price>ema50) pts+=20;
+  if(price<bb.lower||price>bb.upper) pts+=20;
+  if(stoch<20||stoch>80) pts+=20;
+  return Math.min(pts,100);
+}
+
+// ─────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────
+function renderCards(results) {
+  const el = document.getElementById('container');
+  el.innerHTML = '';
+  const buy  = results.filter(r=>!r.error&&r.signal==='BUY');
+  const sell = results.filter(r=>!r.error&&r.signal==='SELL');
+  const hold = results.filter(r=>!r.error&&r.signal==='HOLD');
+  const errs = results.filter(r=>r.error);
+
+  if(buy.length)  { el.innerHTML+=`<div class="section-title">🟢 شراء (${buy.length})</div>`; buy.forEach(r=>el.appendChild(card(r))); }
+  if(sell.length) { el.innerHTML+=`<div class="section-title">🔴 بيع (${sell.length})</div>`; sell.forEach(r=>el.appendChild(card(r))); }
+  if(hold.length) { el.innerHTML+=`<div class="section-title">⚪ انتظار (${hold.length})</div>`; hold.forEach(r=>el.appendChild(card(r))); }
+  if(errs.length) {
+    el.innerHTML+=`<div class="section-title">⚠️ أخطاء (${errs.length})</div>`;
+    errs.forEach(r=>{ const d=document.createElement('div'); d.className='error-card'; d.textContent=`${dispSym(r.sym)}: ${r.error}`; el.appendChild(d); });
+  }
+  const ok = results.filter(r=>!r.error).length;
+  document.getElementById('statusMsg').textContent =
+    `✅ ${ok} رمز • ❌ ${errs.length} فشل`;
+}
+
+function card(r) {
+  const div = document.createElement('div');
+  const cls = r.signal==='BUY'?'buy':r.signal==='SELL'?'sell':'hold';
+  div.className = `card ${cls}`;
+  const updn = r.change>=0?'up':'dn';
+  const arrow = r.change>=0?'▲':'▼';
+  const strColor = r.signal==='BUY'?'var(--green)':r.signal==='SELL'?'var(--red)':'#546e7a';
+  div.innerHTML = `
+    <div class="card-left">
+      <div class="card-sym">${dispSym(r.sym)}</div>
+      <div class="card-name">${NAMES[r.sym]||r.sym}</div>
+      <div class="strength-wrap">
+        <div class="strength-bar"><div class="strength-fill" style="width:${r.strength}%;background:${strColor}"></div></div>
+        <div class="strength-val">${r.strength}%</div>
+      </div>
+    </div>
+    <div class="card-mid">
+      <div class="card-price">${fmtPrice(r.price,r.sym)}</div>
+      <div class="card-change ${updn}">${arrow} ${Math.abs(r.change).toFixed(2)}%</div>
+    </div>
+    <div class="card-right">
+      <div class="signal-badge ${r.signal}">${r.signal}</div>
+      <div class="card-indicators">RSI ${r.rsi?r.rsi.toFixed(1):'--'}<br>MACD ${r.macd?(r.macd.hist>=0?'+':'')+r.macd.hist.toFixed(4):'--'}</div>
+    </div>`;
+  return div;
+}
+
+// ─────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────
+function dispSym(s) { return s.startsWith('OANDA:')?s.replace('OANDA:','').replace('_','/'):s.replace('USDT',''); }
+function fmtPrice(p, s) {
+  if(!p) return '--';
+  if(s&&(s.includes('BTC')||s.includes('XAU'))) return '$'+p.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+  if(p<0.01) return '$'+p.toFixed(6);
+  if(p<1)    return '$'+p.toFixed(4);
+  if(p<100)  return '$'+p.toFixed(3);
+  return '$'+p.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function dateRange(days) {
+  const to=Math.floor(Date.now()/1000), from=to-days*86400;
+  return { from, to };
+}
+function delay(ms) { return new Promise(r=>setTimeout(r,ms)); }
 </script>
 </body>
 </html>
