@@ -92,11 +92,10 @@ async function fetchBinance(sym){
 }
 
 async function fetchProxy(sym,type='stock'){
-  const resMap={'1h':'60','4h':'240','1d':'D','1w':'W'};
-  const res=resMap[tf]||'60';
+  // Finnhub Free Plan: only Daily data for stocks/forex (no intraday)
+  const res='D';
   const to=Math.floor(Date.now()/1000);
-  const secMap={'60':3600,'240':14400,'D':86400,'W':604800};
-  const from=to-200*(secMap[res]||86400);
+  const from=to-300*86400; // 300 days back
   const r=await fetch(`${BASE}/candle?symbol=${sym}&resolution=${res}&from=${from}&to=${to}&type=${type}`);
   const d=await r.json();
   if(d.s!=='ok')throw new Error('No data');
