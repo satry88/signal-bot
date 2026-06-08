@@ -342,56 +342,176 @@ function analyze(sym,closes,highs,lows,vols){
   return{sym,price,change,rsi,macd,ema50,ema200,bb,willR,atr,st,volRatio,signal,confidence,score,maxScore};
 }
 
-// ── INDICATORS ────────────────────────────────────
-function calcRSI(c,p=14){
-  if(c.length<p+1) return 50;
-  let g=0,l=0;
-  for(let i=c.length-p;i<c.length;i++){const d=c[i]-c[i-1];d>0?g+=d:l-=d;}
-  return 100-(100/(1+g/(l||0.0001)));
+// ════════════════════════════════════════════════
+//  INDICATORS — حسابات دقيقة تطابق TradingView
+// ════════════════════════════════════════════════
+
+// ── EMA series: يُرجع مصفوفة كاملة (دقيق وسريع) ──
+function emaSeries(values, period){
+  const k = 2/(period+1);
+  const out = [];
+  let ema;
+  for(let i=0; i<values.length; i++){
+    if(i < period-1){ out.push(null); continue; }
+    if(i === period-1){
+      // أول قيمة = SMA
+      let sum=0; for(let j=0;j<period;j++) sum+=values[i-j];
+      ema = sum/period;
+    } else {
+      ema = values[i]*k + ema*(1-k);
+    }
+    out.push(ema);
+  }
+  return out;
 }
-function calcEMA(c,p){
-  if(c.length<p) return c[c.length-1];
-  const k=2/(p+1);
-  let e=c.slice(0,p).reduce((a,b)=>a+b,0)/p;
-  for(let i=p;i<c.length;i++) e=c[i]*k+e*(1-k);
-  return e;
+// EMA قيمة واحدة (آخر قيمة)
+function calcEMA(c, p){
+  if(c.length < p) return c[c.length-1];
+  const s = emaSeries(c, p);
+  return s[s.length-1];
 }
+
+// ── RSI — Wilder's smoothing (نفس TradingView) ──
+function calcRSI(c, p=14){
+  if(c.length < p+1) return 50;
+  let gain=0, loss=0;
+  // المتوسط الأولي
+  for(let i=1; i<=p; i++){
+    const d = c[i]-c[i-1];
+    if(d>=0) gain+=d; else loss-=d;
+  }
+  let avgGain = gain/p, avgLoss = loss/p;
+  // Wilder smoothing للباقي
+  for(let i=p+1; i<c.length; i++){
+    const d = c[i]-c[i-1];
+    const g = d>0 ? d : 0;
+    const l = d<0 ? -d : 0;
+    avgGain = (avgGain*(p-1) + g)/p;
+    avgLoss = (avgLoss*(p-1) + l)/p;
+  }
+  if(avgLoss === 0) return 100;
+  const rs = avgGain/avgLoss;
+  return 100 - (100/(1+rs));
+}
+
+// ── MACD — صحيح: EMA(12)-EMA(26), signal=EMA(9) ──
 function calcMACD(c){
-  const e12=calcEMA(c,12),e26=calcEMA(c,26),line=e12-e26;
-  const ms=[];
-  for(let i=26;i<=c.length;i++) ms.push(calcEMA(c.slice(0,i),12)-calcEMA(c.slice(0,i),26));
-  const sig=calcEMA(ms,9);
-  return{line,signal:sig,hist:line-sig};
+  if(c.length < 35) {
+    const e12=calcEMA(c,12), e26=calcEMA(c,26), line=e12-e26;
+    return {line, signal:line, hist:0};
+  }
+  const ema12 = emaSeries(c, 12);
+  const ema26 = emaSeries(c, 26);
+  // خط MACD لكل شمعة (حيث توفر القيمتان)
+  const macdLine = [];
+  for(let i=0; i<c.length; i++){
+    if(ema12[i]!==null && ema26[i]!==null) macdLine.push(ema12[i]-ema26[i]);
+  }
+  // خط الإشارة = EMA(9) لخط MACD
+  const signalArr = emaSeries(macdLine, 9);
+  const line = macdLine[macdLine.length-1];
+  const signal = signalArr[signalArr.length-1] ?? line;
+  return {line, signal, hist: line-signal};
 }
-function calcBB(c,p=20,m=2){
-  if(c.length<p) return{upper:0,lower:0,mid:0};
-  const s=c.slice(-p),mid=s.reduce((a,b)=>a+b,0)/p;
-  const sd=Math.sqrt(s.reduce((a,b)=>a+(b-mid)**2,0)/p);
-  return{upper:mid+m*sd,lower:mid-m*sd,mid};
+
+// ── Bollinger Bands(20,2) ──
+function calcBB(c, p=20, m=2){
+  if(c.length < p) return {upper:0, lower:0, mid:0};
+  const s = c.slice(-p);
+  const mid = s.reduce((a,b)=>a+b,0)/p;
+  const sd = Math.sqrt(s.reduce((a,b)=>a+(b-mid)**2,0)/p);
+  return {upper:mid+m*sd, lower:mid-m*sd, mid};
 }
-function calcWilliamsR(h,l,c,p=14){
-  const n=c.length; if(n<p) return -50;
-  const hi=Math.max(...h.slice(-p)),lo=Math.min(...l.slice(-p));
-  return hi===lo?-50:((hi-c[n-1])/(hi-lo))*-100;
+
+// ── Williams %R(14) ──
+function calcWilliamsR(h, l, c, p=14){
+  const n = c.length;
+  if(n < p) return -50;
+  const hi = Math.max(...h.slice(-p));
+  const lo = Math.min(...l.slice(-p));
+  return hi===lo ? -50 : ((hi-c[n-1])/(hi-lo))*-100;
 }
-function calcATR(h,l,c,p=14){
-  const trs=[];
-  for(let i=1;i<c.length;i++)
-    trs.push(Math.max(h[i]-l[i],Math.abs(h[i]-c[i-1]),Math.abs(l[i]-c[i-1])));
-  return trs.slice(-p).reduce((a,b)=>a+b,0)/Math.min(p,trs.length);
+
+// ── ATR — Wilder's smoothing (نفس TradingView) ──
+function atrSeries(h, l, c, p=14){
+  const tr = [];
+  for(let i=0; i<c.length; i++){
+    if(i===0){ tr.push(h[i]-l[i]); continue; }
+    tr.push(Math.max(
+      h[i]-l[i],
+      Math.abs(h[i]-c[i-1]),
+      Math.abs(l[i]-c[i-1])
+    ));
+  }
+  const out = [];
+  let atr;
+  for(let i=0; i<tr.length; i++){
+    if(i < p-1){ out.push(null); continue; }
+    if(i === p-1){
+      let sum=0; for(let j=0;j<p;j++) sum+=tr[i-j];
+      atr = sum/p;
+    } else {
+      atr = (atr*(p-1) + tr[i])/p; // Wilder
+    }
+    out.push(atr);
+  }
+  return out;
 }
-function calcSupertrend(h,l,c,period=10,mult=3){
-  const atr=calcATR(h,l,c,period);
-  const mid=(h[h.length-1]+l[l.length-1])/2;
-  const lower=mid-mult*atr;
-  const trend=c[c.length-1]>lower?'up':'dn';
-  return{trend,lower,atr};
+function calcATR(h, l, c, p=14){
+  const s = atrSeries(h, l, c, p);
+  return s[s.length-1] || (h[h.length-1]-l[l.length-1]);
 }
+
+// ── Supertrend الحقيقي — يتتبع الاتجاه عبر الشموع ──
+function calcSupertrend(h, l, c, period=10, mult=3){
+  const n = c.length;
+  if(n < period+1) return {trend:'up', value:c[n-1], atr:0};
+
+  const atr = atrSeries(h, l, c, period);
+  const finalUpper = new Array(n).fill(0);
+  const finalLower = new Array(n).fill(0);
+  const dir = new Array(n).fill(1); // 1=up, -1=down
+
+  for(let i=0; i<n; i++){
+    if(atr[i]===null){ dir[i]=1; continue; }
+    const hl2 = (h[i]+l[i])/2;
+    const basicUpper = hl2 + mult*atr[i];
+    const basicLower = hl2 - mult*atr[i];
+
+    // الحد العلوي النهائي
+    finalUpper[i] = (i>0 && atr[i-1]!==null)
+      ? ( (basicUpper < finalUpper[i-1] || c[i-1] > finalUpper[i-1]) ? basicUpper : finalUpper[i-1] )
+      : basicUpper;
+
+    // الحد السفلي النهائي
+    finalLower[i] = (i>0 && atr[i-1]!==null)
+      ? ( (basicLower > finalLower[i-1] || c[i-1] < finalLower[i-1]) ? basicLower : finalLower[i-1] )
+      : basicLower;
+
+    // تحديد الاتجاه
+    if(i>0 && atr[i-1]!==null){
+      const prevDir = dir[i-1];
+      if(prevDir === 1){
+        dir[i] = c[i] < finalLower[i] ? -1 : 1;
+      } else {
+        dir[i] = c[i] > finalUpper[i] ? 1 : -1;
+      }
+    } else {
+      dir[i] = c[i] >= hl2 ? 1 : -1;
+    }
+  }
+
+  const lastDir = dir[n-1];
+  const value = lastDir === 1 ? finalLower[n-1] : finalUpper[n-1];
+  return {trend: lastDir===1 ? 'up' : 'dn', value, atr: atr[n-1]||0};
+}
+
+// ── Volume Ratio ──
 function calcVolRatio(v){
-  if(!v||v.length<20) return 1;
-  const recent=v[v.length-1]||0;
-  const avg=v.slice(-20,-1).filter(x=>x).reduce((a,b)=>a+b,0)/19;
-  return avg>0?recent/avg:1;
+  if(!v || v.length < 20) return 1;
+  const recent = v[v.length-1] || 0;
+  const avg = v.slice(-20,-1).filter(x=>x).reduce((a,b)=>a+b,0)/19;
+  return avg>0 ? recent/avg : 1;
 }
 
 // ── RENDER ────────────────────────────────────────
