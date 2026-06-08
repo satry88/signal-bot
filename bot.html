@@ -22,6 +22,33 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
 .mode-btn{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;cursor:pointer;transition:all 0.2s;border:1px solid var(--border);background:var(--panel);color:var(--muted);}
 .mode-btn.active{background:var(--gold);color:#000;border-color:var(--gold);}
 .mode-btn.single.active{background:var(--blue);color:#000;border-color:var(--blue);}
+.mode-btn.bt.active{background:#a78bfa;color:#000;border-color:#a78bfa;}
+/* Backtest results */
+.bt-tf-row{display:flex;padding:0 16px 10px;gap:6px;}
+.bt-summary{margin:8px 12px 14px;background:linear-gradient(135deg,#0d1420,#12182a);border:1px solid #2a3550;border-radius:14px;padding:16px;}
+.bt-sym-title{font-size:16px;font-weight:900;color:var(--white);font-family:'IBM Plex Mono',monospace;margin-bottom:2px;}
+.bt-sym-sub{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:12px;}
+.bt-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.bt-stat{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:10px;}
+.bt-stat-label{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:0.5px;}
+.bt-stat-val{font-size:18px;font-weight:900;font-family:'IBM Plex Mono',monospace;margin-top:3px;}
+.bt-stat-val.pos{color:var(--green);}
+.bt-stat-val.neg{color:var(--red);}
+.bt-stat-val.neut{color:var(--white);}
+.bt-winrate-bar{height:8px;background:var(--red);border-radius:5px;overflow:hidden;margin-top:10px;display:flex;}
+.bt-winrate-fill{height:100%;background:var(--green);transition:width 0.6s;}
+.bt-trades{margin:0 12px 8px;}
+.bt-trade-head{font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;padding:6px 4px;text-transform:uppercase;letter-spacing:1px;}
+.bt-trade{display:flex;align-items:center;justify-content:space-between;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:9px 11px;margin-bottom:5px;font-family:'IBM Plex Mono',monospace;font-size:11px;}
+.bt-trade.win{border-right:3px solid var(--green);}
+.bt-trade.loss{border-right:3px solid var(--red);}
+.bt-trade-type{font-weight:700;padding:2px 7px;border-radius:10px;font-size:9px;}
+.bt-trade-type.long{background:rgba(0,230,118,0.15);color:var(--green);}
+.bt-trade-pl{font-weight:700;}
+.bt-trade-pl.pos{color:var(--green);}
+.bt-trade-pl.neg{color:var(--red);}
+.bt-note{margin:8px 12px;background:rgba(255,213,79,0.06);border:1px solid rgba(255,213,79,0.2);border-radius:10px;padding:10px 12px;font-size:10px;color:var(--gold);font-family:'IBM Plex Mono',monospace;line-height:1.7;}
+.bt-loading-detail{font-size:10px;color:var(--muted);margin-top:6px;}
 .tf-row{display:flex;padding:0 16px 10px;gap:6px;}
 .tf{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--muted);background:var(--panel);border:1px solid var(--border);cursor:pointer;transition:all 0.2s;}
 .tf.active{color:var(--bg);background:var(--blue);border-color:var(--blue);}
@@ -112,8 +139,9 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
 </div>
 
 <div class="mode-row">
-  <div class="mode-btn active" id="btnMTF" onclick="switchMode('mtf')">🔗 MTF ترابط</div>
+  <div class="mode-btn active" id="btnMTF" onclick="switchMode('mtf')">🔗 MTF</div>
   <div class="mode-btn single" id="btnSingle" onclick="switchMode('single')">📊 فريم واحد</div>
+  <div class="mode-btn bt" id="btnBT" onclick="switchMode('backtest')">🧪 اختبار</div>
 </div>
 
 <div id="tfSingleRow" class="tf-row" style="display:none">
@@ -123,6 +151,13 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
   <div class="tf" onclick="switchTF('1w',this)">1W</div>
 </div>
 <div id="mtfNote" class="mtf-note">⚡ يحلل 3 فريمات تلقائياً (عملات: 1H+1D+1W • أسهم/معادن: 4H+1D+1W)</div>
+<div id="btTfRow" class="bt-tf-row" style="display:none">
+  <div class="tf" onclick="switchBtTF('1h',this)">1H</div>
+  <div class="tf" onclick="switchBtTF('4h',this)">4H</div>
+  <div class="tf active" onclick="switchBtTF('1d',this)">1D</div>
+  <div class="tf" onclick="switchBtTF('1w',this)">1W</div>
+</div>
+<div id="btNote" class="mtf-note" style="display:none">🧪 يختبر الإشارات على البيانات التاريخية ويحسب نسبة النجاح</div>
 
 <div class="status-bar" id="statusMsg"></div>
 <div class="last-update" id="lastUpdate"></div>
@@ -149,7 +184,7 @@ const MTF_FRAMES = {
 };
 
 const BASE = window.location.origin;
-let currentTab='crypto', currentTF='1h', mode='mtf', loading=false;
+let currentTab='crypto', currentTF='1h', mode='mtf', btTF='1d', loading=false;
 
 window.onload = () => { loadAll(); };
 
@@ -161,15 +196,23 @@ function switchTab(t,el){
 }
 function switchTF(t,el){
   currentTF=t;
-  document.querySelectorAll('.tf').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('#tfSingleRow .tf').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active'); loadAll();
+}
+function switchBtTF(t,el){
+  btTF=t;
+  document.querySelectorAll('#btTfRow .tf').forEach(x=>x.classList.remove('active'));
   el.classList.add('active'); loadAll();
 }
 function switchMode(m){
   mode=m;
   document.getElementById('btnMTF').className='mode-btn'+(m==='mtf'?' active':'');
   document.getElementById('btnSingle').className='mode-btn single'+(m==='single'?' active':'');
+  document.getElementById('btnBT').className='mode-btn bt'+(m==='backtest'?' active':'');
   document.getElementById('tfSingleRow').style.display=m==='single'?'flex':'none';
   document.getElementById('mtfNote').style.display=m==='mtf'?'block':'none';
+  document.getElementById('btTfRow').style.display=m==='backtest'?'flex':'none';
+  document.getElementById('btNote').style.display=m==='backtest'?'block':'none';
   loadAll();
 }
 
@@ -184,6 +227,26 @@ async function loadAll(){
 
   const syms = currentTab==='crypto'?CRYPTO_BIN:currentTab==='metals'?METAL_YAHOO:STOCK_YAHOO;
   const results=[];
+
+  // ── BACKTEST MODE ──
+  if(mode==='backtest'){
+    document.getElementById('container').innerHTML=
+      '<div class="loading"><div class="spinner"></div>جارٍ اختبار البيانات التاريخية...<div class="bt-loading-detail">قد يستغرق بعض الوقت</div></div>';
+    const btResults=[];
+    for(const sym of syms){
+      try{
+        const candles = currentTab==='crypto'
+          ? await fetchCandlesBinance(sym, btTF)
+          : await fetchCandlesYahoo(sym, btTF);
+        btResults.push(runBacktest(sym, candles));
+      }catch(e){ btResults.push({sym, error:e.message}); }
+      if(currentTab!=='crypto') await delay(200);
+    }
+    renderBacktest(btResults);
+    document.getElementById('lastUpdate').textContent='آخر اختبار: '+new Date().toLocaleTimeString('ar-EG');
+    loading=false; btn.classList.remove('spinning'); btn.disabled=false;
+    return;
+  }
 
   if(mode==='mtf'){
     // تحليل 3 فريمات لكل رمز
@@ -308,11 +371,127 @@ async function fetchYahoo(symbol,tf){
   return analyze(symbol,d.c,d.h,d.l,d.v);
 }
 
+// ── RAW CANDLE FETCHERS (للـ backtest) ───────────
+async function fetchCandlesBinance(symbol,tf){
+  const iMap={'1h':'1h','4h':'4h','1d':'1d','1w':'1w'};
+  const r=await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${iMap[tf]||'1d'}&limit=500`);
+  if(!r.ok) throw new Error('Binance '+r.status);
+  const raw=await r.json();
+  if(!Array.isArray(raw)||raw.length<60) throw new Error('بيانات غير كافية');
+  return {
+    closes: raw.map(c=>+c[4]),
+    highs:  raw.map(c=>+c[2]),
+    lows:   raw.map(c=>+c[3]),
+    vols:   raw.map(c=>+c[5])
+  };
+}
+async function fetchCandlesYahoo(symbol,tf){
+  const iMap={'1h':'1h','4h':'60m','1d':'1d','1w':'1wk'};
+  const url=`${BASE}/api/yahoo?symbol=${encodeURIComponent(symbol)}&interval=${iMap[tf]||'1d'}`;
+  const r=await fetch(url);
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const d=await r.json();
+  if(d.error||!d.c||d.c.length<60) throw new Error(d.error||'بيانات غير كافية');
+  return {closes:d.c, highs:d.h, lows:d.l, vols:d.v};
+}
+
+// ── BACKTEST ENGINE ──────────────────────────────
+// يمشي على البيانات شمعة بشمعة، يدخل عند BUY ويخرج عند SELL
+// ملاحظة: نستخدم عتبة أخف (±4) في الاختبار لعينة أكبر قابلة للتقييم
+function btSignal(score){
+  return score >= 4 ? 'BUY' : score <= -4 ? 'SELL' : 'HOLD';
+}
+function runBacktest(sym, candles){
+  const {closes, highs, lows, vols} = candles;
+  const n = closes.length;
+  const warmup = 60; // نحتاج 60 شمعة على الأقل لحساب المؤشرات
+
+  if(n < warmup + 20) throw new Error('بيانات غير كافية للاختبار');
+
+  const trades = [];
+  let position = null; // {entryPrice, entryIdx}
+
+  for(let i = warmup; i < n; i++){
+    // نأخذ البيانات حتى الشمعة i فقط (لا نرى المستقبل)
+    const cSlice = closes.slice(0, i+1);
+    const hSlice = highs.slice(0, i+1);
+    const lSlice = lows.slice(0, i+1);
+    const vSlice = vols.slice(0, i+1);
+
+    const s = computeScore(cSlice, hSlice, lSlice, vSlice);
+    const sig = btSignal(s.score);
+    const price = closes[i];
+
+    if(!position && sig === 'BUY'){
+      // دخول صفقة شراء
+      position = { entryPrice: price, entryIdx: i };
+    } else if(position && sig === 'SELL'){
+      // خروج
+      const pl = ((price - position.entryPrice) / position.entryPrice) * 100;
+      trades.push({
+        type: 'LONG',
+        entry: position.entryPrice,
+        exit: price,
+        pl,
+        bars: i - position.entryIdx
+      });
+      position = null;
+    }
+  }
+
+  // إغلاق الصفقة المفتوحة على آخر سعر (تقييم)
+  let openTrade = null;
+  if(position){
+    const lastPrice = closes[n-1];
+    const pl = ((lastPrice - position.entryPrice) / position.entryPrice) * 100;
+    openTrade = { type:'LONG', entry:position.entryPrice, exit:lastPrice, pl, bars:(n-1)-position.entryIdx, open:true };
+  }
+
+  // إحصائيات
+  const closed = trades;
+  const wins = closed.filter(t=>t.pl > 0);
+  const losses = closed.filter(t=>t.pl <= 0);
+  const winRate = closed.length ? (wins.length/closed.length)*100 : 0;
+  const avgWin = wins.length ? wins.reduce((a,t)=>a+t.pl,0)/wins.length : 0;
+  const avgLoss = losses.length ? losses.reduce((a,t)=>a+t.pl,0)/losses.length : 0;
+
+  // العائد التراكمي (compound)
+  let equity = 100;
+  let peak = 100, maxDD = 0;
+  for(const t of closed){
+    equity *= (1 + t.pl/100);
+    if(equity > peak) peak = equity;
+    const dd = ((peak - equity)/peak)*100;
+    if(dd > maxDD) maxDD = dd;
+  }
+  const totalReturn = equity - 100;
+
+  // Profit Factor
+  const grossProfit = wins.reduce((a,t)=>a+t.pl,0);
+  const grossLoss = Math.abs(losses.reduce((a,t)=>a+t.pl,0));
+  const profitFactor = grossLoss > 0 ? grossProfit/grossLoss : (grossProfit>0?99:0);
+
+  return {
+    sym,
+    totalTrades: closed.length,
+    wins: wins.length,
+    losses: losses.length,
+    winRate,
+    avgWin,
+    avgLoss,
+    totalReturn,
+    maxDD,
+    profitFactor,
+    barsTested: n - warmup,
+    recentTrades: closed.slice(-6).reverse(),
+    openTrade
+  };
+}
+
 // ── ANALYSIS ENGINE ───────────────────────────────
-function analyze(sym,closes,highs,lows,vols){
+// منطق النقاط المنفصل — يُستخدم في التحليل والـ backtest معاً
+function computeScore(closes, highs, lows, vols){
   const price=closes[closes.length-1];
-  const prev=closes[closes.length-2];
-  const change=((price-prev)/prev)*100;
   const rsi=calcRSI(closes,14);
   const macd=calcMACD(closes);
   const ema50=calcEMA(closes,50);
@@ -337,9 +516,16 @@ function analyze(sym,closes,highs,lows,vols){
 
   const maxScore=12;
   const signal=score>=6?'BUY':score<=-6?'SELL':'HOLD';
-  const confidence=Math.round((Math.abs(score)/maxScore)*100);
+  return{price,rsi,macd,ema50,ema200,bb,willR,atr,st,volRatio,signal,score,maxScore};
+}
 
-  return{sym,price,change,rsi,macd,ema50,ema200,bb,willR,atr,st,volRatio,signal,confidence,score,maxScore};
+function analyze(sym,closes,highs,lows,vols){
+  const price=closes[closes.length-1];
+  const prev=closes[closes.length-2];
+  const change=((price-prev)/prev)*100;
+  const s = computeScore(closes,highs,lows,vols);
+  const confidence=Math.round((Math.abs(s.score)/s.maxScore)*100);
+  return{sym,price,change,confidence,...s};
 }
 
 // ════════════════════════════════════════════════
@@ -530,6 +716,93 @@ function renderCards(results){
   }
   const ok=results.filter(r=>!r.error).length;
   document.getElementById('statusMsg').textContent=`✅ ${ok} رمز • ❌ ${errs.length} فشل • ${mode==='mtf'?'🔗 MTF':'📊 فريم واحد'}`;
+}
+
+// ── RENDER BACKTEST ──────────────────────────────
+function renderBacktest(results){
+  const el=document.getElementById('container');
+  el.innerHTML='';
+
+  const ok = results.filter(r=>!r.error);
+  const errs = results.filter(r=>r.error);
+
+  document.getElementById('statusMsg').textContent=`🧪 اختبار ${ok.length} رمز • فريم ${btTF.toUpperCase()}`;
+
+  // ملاحظة توضيحية
+  el.innerHTML += `<div class="bt-note">⚠️ النتائج لا تشمل العمولات أو الـ slippage • الأداء التاريخي لا يضمن المستقبل • دخول عند إشارة شراء، خروج عند بيع (عتبة ±4 لعينة أكبر)</div>`;
+
+  for(const r of ok){
+    const div=document.createElement('div');
+    div.className='bt-summary';
+
+    const retCls = r.totalReturn>=0?'pos':'neg';
+    const wrCls = r.winRate>=55?'pos':r.winRate>=45?'neut':'neg';
+    const pfCls = r.profitFactor>=1.5?'pos':r.profitFactor>=1?'neut':'neg';
+
+    // صفقات حديثة
+    let tradesHtml='';
+    if(r.recentTrades && r.recentTrades.length){
+      tradesHtml = `<div class="bt-trades"><div class="bt-trade-head">آخر الصفقات</div>` +
+        r.recentTrades.map(t=>{
+          const cls=t.pl>0?'win':'loss';
+          const plCls=t.pl>0?'pos':'neg';
+          return `<div class="bt-trade ${cls}">
+            <span class="bt-trade-type long">شراء</span>
+            <span>$${fmtNum(t.entry)} ← $${fmtNum(t.exit)}</span>
+            <span class="bt-trade-pl ${plCls}">${t.pl>0?'+':''}${t.pl.toFixed(2)}%</span>
+          </div>`;
+        }).join('') + `</div>`;
+    }
+
+    div.innerHTML = `
+      <div class="bt-sym-title">${dispSym(r.sym)}</div>
+      <div class="bt-sym-sub">${NAMES[r.sym]||r.sym} • ${r.barsTested} شمعة مُختبرة • ${r.totalTrades} صفقة</div>
+      <div class="bt-stats">
+        <div class="bt-stat">
+          <div class="bt-stat-label">العائد الكلي</div>
+          <div class="bt-stat-val ${retCls}">${r.totalReturn>=0?'+':''}${r.totalReturn.toFixed(1)}%</div>
+        </div>
+        <div class="bt-stat">
+          <div class="bt-stat-label">نسبة النجاح</div>
+          <div class="bt-stat-val ${wrCls}">${r.winRate.toFixed(0)}%</div>
+        </div>
+        <div class="bt-stat">
+          <div class="bt-stat-label">رابحة / خاسرة</div>
+          <div class="bt-stat-val neut">${r.wins} / ${r.losses}</div>
+        </div>
+        <div class="bt-stat">
+          <div class="bt-stat-label">Profit Factor</div>
+          <div class="bt-stat-val ${pfCls}">${r.profitFactor.toFixed(2)}</div>
+        </div>
+        <div class="bt-stat">
+          <div class="bt-stat-label">متوسط الربح</div>
+          <div class="bt-stat-val pos">+${r.avgWin.toFixed(2)}%</div>
+        </div>
+        <div class="bt-stat">
+          <div class="bt-stat-label">أكبر تراجع</div>
+          <div class="bt-stat-val neg">-${r.maxDD.toFixed(1)}%</div>
+        </div>
+      </div>
+      <div class="bt-winrate-bar"><div class="bt-winrate-fill" style="width:${r.winRate}%"></div></div>
+      ${tradesHtml}
+    `;
+    el.appendChild(div);
+  }
+
+  if(errs.length){
+    errs.forEach(r=>{
+      const d=document.createElement('div');
+      d.className='error-card';
+      d.textContent=`${dispSym(r.sym)}: ${r.error}`;
+      el.appendChild(d);
+    });
+  }
+}
+
+function fmtNum(p){
+  if(p>1000) return p.toLocaleString('en',{maximumFractionDigits:0});
+  if(p<1) return p.toFixed(4);
+  return p.toFixed(2);
 }
 
 function card(r){
