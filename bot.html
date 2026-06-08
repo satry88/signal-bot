@@ -49,6 +49,9 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
 .bt-trade-pl.neg{color:var(--red);}
 .bt-note{margin:8px 12px;background:rgba(255,213,79,0.06);border:1px solid rgba(255,213,79,0.2);border-radius:10px;padding:10px 12px;font-size:10px;color:var(--gold);font-family:'IBM Plex Mono',monospace;line-height:1.7;}
 .bt-loading-detail{font-size:10px;color:var(--muted);margin-top:6px;}
+.bt-controls{display:flex;padding:0 16px 10px;gap:8px;flex-wrap:wrap;}
+.bt-toggle{padding:6px 12px;border-radius:20px;font-size:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;cursor:pointer;transition:all 0.2s;border:1px solid var(--border);background:var(--panel);color:var(--muted);}
+.bt-toggle.active{background:rgba(0,230,118,0.12);color:var(--green);border-color:rgba(0,230,118,0.3);}
 .tf-row{display:flex;padding:0 16px 10px;gap:6px;}
 .tf{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--muted);background:var(--panel);border:1px solid var(--border);cursor:pointer;transition:all 0.2s;}
 .tf.active{color:var(--bg);background:var(--blue);border-color:var(--blue);}
@@ -158,6 +161,10 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
   <div class="tf" onclick="switchBtTF('1w',this)">1W</div>
 </div>
 <div id="btNote" class="mtf-note" style="display:none">🧪 يختبر الإشارات على البيانات التاريخية ويحسب نسبة النجاح</div>
+<div id="btControls" class="bt-controls" style="display:none">
+  <div class="bt-toggle active" id="btFilterBtn" onclick="toggleFilter()">🛡️ فلتر الاتجاه: مفعّل</div>
+  <div class="bt-toggle active" id="btSLBtn" onclick="toggleSL()">📉 Stop Loss: 8%</div>
+</div>
 
 <div class="status-bar" id="statusMsg"></div>
 <div class="last-update" id="lastUpdate"></div>
@@ -185,6 +192,7 @@ const MTF_FRAMES = {
 
 const BASE = window.location.origin;
 let currentTab='crypto', currentTF='1h', mode='mtf', btTF='1d', loading=false;
+let btUseFilter=true, btStopLoss=8; // فلتر الاتجاه + stop loss للـ backtest
 
 window.onload = () => { loadAll(); };
 
@@ -213,6 +221,21 @@ function switchMode(m){
   document.getElementById('mtfNote').style.display=m==='mtf'?'block':'none';
   document.getElementById('btTfRow').style.display=m==='backtest'?'flex':'none';
   document.getElementById('btNote').style.display=m==='backtest'?'block':'none';
+  document.getElementById('btControls').style.display=m==='backtest'?'flex':'none';
+  loadAll();
+}
+function toggleFilter(){
+  btUseFilter=!btUseFilter;
+  const b=document.getElementById('btFilterBtn');
+  b.className='bt-toggle'+(btUseFilter?' active':'');
+  b.textContent=btUseFilter?'🛡️ فلتر الاتجاه: مفعّل':'🛡️ فلتر الاتجاه: معطّل';
+  loadAll();
+}
+function toggleSL(){
+  btStopLoss = btStopLoss>0 ? 0 : 8;
+  const b=document.getElementById('btSLBtn');
+  b.className='bt-toggle'+(btStopLoss>0?' active':'');
+  b.textContent=btStopLoss>0?'📉 Stop Loss: 8%':'📉 Stop Loss: معطّل';
   loadAll();
 }
 
@@ -422,7 +445,23 @@ function runBacktest(sym, candles){
     const sig = btSignal(s.score);
     const price = closes[i];
 
-    if(!position && sig === 'BUY'){
+    // فحص Stop Loss أولاً (إذا كنا في صفقة)
+    if(position && btStopLoss > 0){
+      const curPL = ((price - position.entryPrice) / position.entryPrice) * 100;
+      if(curPL <= -btStopLoss){
+        trades.push({
+          type:'LONG', entry:position.entryPrice, exit:price,
+          pl:curPL, bars:i-position.entryIdx, stopped:true
+        });
+        position = null;
+        continue;
+      }
+    }
+
+    // فلتر الاتجاه: لا تشترِ إلا فوق EMA200 (اتجاه صاعد)
+    const trendOK = !btUseFilter || (price > s.ema200);
+
+    if(!position && sig === 'BUY' && trendOK){
       // دخول صفقة شراء
       position = { entryPrice: price, entryIdx: i };
     } else if(position && sig === 'SELL'){
