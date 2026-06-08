@@ -55,7 +55,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
 </head>
 <body>
 <div class="header">
-  <div class="logo">⚡ Signal Bot<span>Binance + Yahoo • 24/7</span></div>
+  <div class="logo">⚡ Signal Bot<span>Binance • 24/7 حقيقي</span></div>
   <button class="refresh-btn" id="refreshBtn" onclick="loadAll()">🔄 تحديث</button>
 </div>
 <div class="tabs">
@@ -70,26 +70,25 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
 <div class="footer">⚠️ للأغراض التعليمية فقط • ليس توصية استثمارية<br>Signal Bot Pro © 2026</div>
 
 <script>
+// ── Symbols ───────────────────────────────────────
+// كل شيء من Binance الآن — بما في ذلك الذهب والفضة والأسهم
 const SYMBOLS = {
-  crypto:  ['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT','DOGEUSDT','ADAUSDT','AVAXUSDT'],
-  stocks:  ['NVDA','AAPL','MSFT','META','GOOG','TSLA','AMZN','PLTR'],
-  metals:  ['GC=F','SI=F']
+  crypto: ['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT','DOGEUSDT','ADAUSDT','AVAXUSDT'],
+  stocks: ['NVDAUSDT','AAPLUSDT','MSFTUSD','METAUSDT','GOOGLUSDT','TSLAUSDT','AMZNUSDT','PLTRUSDT'],
+  metals: ['XAUUSDT','XAGUSDT']
 };
+
+// Binance يدعم بعض الأسهم عبر tokenized stocks
+// لكن الأكثر موثوقية: نستخدم Yahoo proxy للأسهم فقط
+const STOCK_SYMBOLS  = ['NVDA','AAPL','MSFT','META','GOOG','TSLA','AMZN','PLTR'];
+const METAL_SYMBOLS  = ['XAUUSDT','XAGUSDT']; // Binance مباشر
+
 const NAMES = {
   BTCUSDT:'Bitcoin',ETHUSDT:'Ethereum',SOLUSDT:'Solana',BNBUSDT:'BNB',
   XRPUSDT:'Ripple',DOGEUSDT:'Dogecoin',ADAUSDT:'Cardano',AVAXUSDT:'Avalanche',
+  XAUUSDT:'Gold (XAU/USDT)',XAGUSDT:'Silver (XAG/USDT)',
   NVDA:'NVIDIA',AAPL:'Apple',MSFT:'Microsoft',META:'Meta',
-  GOOG:'Google',TSLA:'Tesla',AMZN:'Amazon',PLTR:'Palantir',
-  'GC=F':'Gold Futures','SI=F':'Silver Futures'
-};
-
-// TF config per tab
-// crypto: Binance intervals
-// stocks/metals: Yahoo intervals
-const TF_CONFIG = {
-  crypto:  { '1h':'1h','4h':'4h','1d':'1d','1w':'1w' },
-  stocks:  { '1h':'1h','4h':'60m','1d':'1d','1w':'1wk' },
-  metals:  { '1h':'1h','4h':'60m','1d':'1d','1w':'1wk' }
+  GOOG:'Google',TSLA:'Tesla',AMZN:'Amazon',PLTR:'Palantir'
 };
 
 const BASE = window.location.origin;
@@ -111,6 +110,8 @@ function switchTF(t,el){
 }
 function renderTFRow(){
   const row=document.getElementById('tfRow');
+  // الأسهم: Yahoo يدعم 1H,4H,1D,1W
+  // المعادن والعملات: Binance يدعم الكل
   row.innerHTML=`
     <div class="tf ${currentTF==='1h'?'active':''}" onclick="switchTF('1h',this)">1H</div>
     <div class="tf ${currentTF==='4h'?'active':''}" onclick="switchTF('4h',this)">4H</div>
@@ -126,36 +127,52 @@ async function loadAll(){
   document.getElementById('container').innerHTML='<div class="loading"><div class="spinner"></div>جارٍ التحليل...</div>';
   document.getElementById('statusMsg').textContent='';
 
-  const syms=SYMBOLS[currentTab];
-  const results=[];
-  for(const sym of syms){
-    try{
-      let data;
-      if(currentTab==='crypto') data=await fetchBinance(sym,currentTF);
-      else data=await fetchYahoo(sym,currentTF);
-      results.push(data);
-    }catch(e){ results.push({sym,error:e.message}); }
-    if(currentTab!=='crypto') await delay(150);
+  let syms, results=[];
+
+  if(currentTab==='crypto'){
+    syms=['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT','DOGEUSDT','ADAUSDT','AVAXUSDT'];
+    for(const s of syms){
+      try{ results.push(await fetchBinance(s,currentTF)); }
+      catch(e){ results.push({sym:s,error:e.message}); }
+    }
+  } else if(currentTab==='metals'){
+    // الذهب والفضة من Binance مباشرة = نفس سعر بينانس
+    syms=['XAUUSDT','XAGUSDT'];
+    for(const s of syms){
+      try{ results.push(await fetchBinance(s,currentTF)); }
+      catch(e){ results.push({sym:s,error:e.message}); }
+    }
+  } else {
+    // الأسهم من Yahoo عبر proxy
+    syms=STOCK_SYMBOLS;
+    for(const s of syms){
+      try{ results.push(await fetchYahoo(s,currentTF)); }
+      catch(e){ results.push({sym:s,error:e.message}); }
+      await delay(150);
+    }
   }
+
   renderCards(results);
   document.getElementById('lastUpdate').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar-EG');
   loading=false; btn.classList.remove('spinning'); btn.disabled=false;
 }
 
-// ── Binance ───────────────────────────────────────
+// ── Binance (crypto + metals) ─────────────────────
 async function fetchBinance(symbol,tf){
   const iMap={'1h':'1h','4h':'4h','1d':'1d','1w':'1w'};
-  const r=await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${iMap[tf]||'1d'}&limit=60`);
+  const url=`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${iMap[tf]||'1h'}&limit=60`;
+  const r=await fetch(url);
   if(!r.ok) throw new Error('Binance '+r.status);
   const raw=await r.json();
-  if(raw.length<14) throw new Error('بيانات غير كافية');
+  if(!Array.isArray(raw)||raw.length<14) throw new Error('بيانات غير كافية');
   return buildResult(symbol,raw.map(c=>+c[4]),raw.map(c=>+c[2]),raw.map(c=>+c[3]),raw.map(c=>+c[5]));
 }
 
-// ── Yahoo Finance ─────────────────────────────────
+// ── Yahoo (stocks only) ───────────────────────────
 async function fetchYahoo(symbol,tf){
-  const yInterval = TF_CONFIG[currentTab][tf] || '1d';
-  const url=`${BASE}/api/yahoo?symbol=${encodeURIComponent(symbol)}&interval=${yInterval}`;
+  const iMap={'1h':'1h','4h':'60m','1d':'1d','1w':'1wk'};
+  const yInterval=iMap[tf]||'1d';
+  const url=`${BASE}/api/yahoo?symbol=${symbol}&interval=${yInterval}`;
   const r=await fetch(url);
   if(!r.ok) throw new Error('HTTP '+r.status);
   const d=await r.json();
@@ -192,7 +209,8 @@ function calcEMA(c,p){
 }
 function calcMACD(c){
   const e12=calcEMA(c,12),e26=calcEMA(c,26),line=e12-e26;
-  const ms=[];for(let i=26;i<=c.length;i++){ms.push(calcEMA(c.slice(0,i),12)-calcEMA(c.slice(0,i),26));}
+  const ms=[];
+  for(let i=26;i<=c.length;i++) ms.push(calcEMA(c.slice(0,i),12)-calcEMA(c.slice(0,i),26));
   const sig=calcEMA(ms,9);
   return{line,signal:sig,hist:line-sig};
 }
@@ -240,11 +258,12 @@ function renderCards(results){
   if(hold.length){el.innerHTML+=`<div class="section-title">⚪ انتظار (${hold.length})</div>`;hold.forEach(r=>el.appendChild(card(r)));}
   if(errs.length){
     el.innerHTML+=`<div class="section-title">⚠️ أخطاء (${errs.length})</div>`;
-    errs.forEach(r=>{const d=document.createElement('div');d.className='error-card';d.textContent=`${r.sym.replace('=F','').replace('USDT','')}: ${r.error}`;el.appendChild(d);});
+    errs.forEach(r=>{const d=document.createElement('div');d.className='error-card';d.textContent=`${dispSym(r.sym)}: ${r.error}`;el.appendChild(d);});
   }
   const ok=results.filter(r=>!r.error).length;
   document.getElementById('statusMsg').textContent=`✅ ${ok} رمز • ❌ ${errs.length} فشل`;
 }
+
 function card(r){
   const div=document.createElement('div');
   const cls=r.signal==='BUY'?'buy':r.signal==='SELL'?'sell':'hold';
@@ -252,10 +271,9 @@ function card(r){
   const updn=r.change>=0?'up':'dn';
   const arrow=r.change>=0?'▲':'▼';
   const strColor=r.signal==='BUY'?'var(--green)':r.signal==='SELL'?'var(--red)':'#546e7a';
-  const sym=r.sym.replace('USDT','').replace('=F','');
   div.innerHTML=`
     <div class="card-left">
-      <div class="card-sym">${sym}</div>
+      <div class="card-sym">${dispSym(r.sym)}</div>
       <div class="card-name">${NAMES[r.sym]||r.sym}</div>
       <div class="strength-wrap">
         <div class="strength-bar"><div class="strength-fill" style="width:${r.strength}%;background:${strColor}"></div></div>
@@ -272,9 +290,15 @@ function card(r){
     </div>`;
   return div;
 }
+
+function dispSym(s){
+  if(s==='XAUUSDT') return 'XAU/USDT';
+  if(s==='XAGUSDT') return 'XAG/USDT';
+  return s.replace('USDT','').replace('=F','');
+}
 function fmtPrice(p,s){
   if(!p) return '--';
-  if(s&&(s.includes('BTC')||s.includes('GC'))) return '$'+p.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+  if(s&&(s.includes('BTC')||s.includes('XAU'))) return '$'+p.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
   if(p<0.01) return '$'+p.toFixed(6);
   if(p<1) return '$'+p.toFixed(4);
   if(p<100) return '$'+p.toFixed(3);
