@@ -1,66 +1,51 @@
 from flask import Flask, request, jsonify, send_from_directory
-import requests
-import os
+import requests, os, time
 
 app = Flask(__name__, static_folder='.')
-
-FINNHUB_KEY = os.environ.get('FINNHUB_KEY', '')
 
 @app.route('/')
 def index():
     return send_from_directory('.', 'bot.html')
 
-# ── Proxy: Stock candles ──────────────────────────
-@app.route('/api/stock')
-def stock():
-    symbol     = request.args.get('symbol', '')
-    resolution = request.args.get('resolution', 'D')
-    from_ts    = request.args.get('from', '')
-    to_ts      = request.args.get('to', '')
-    key        = request.args.get('token', FINNHUB_KEY)
+# ── Yahoo Finance proxy ──────────────────────────
+@app.route('/api/yahoo')
+def yahoo():
+    symbol   = request.args.get('symbol', '')
+    interval = request.args.get('interval', '1d')   # 1d, 1wk
+    period   = request.args.get('period',  '6mo')   # 6mo, 1y
 
-    url = (f'https://finnhub.io/api/v1/stock/candle'
-           f'?symbol={symbol}&resolution={resolution}'
-           f'&from={from_ts}&to={to_ts}&token={key}')
+    url = f'https://query1.finance.yahoo.com/v8/finance/chart/{symbol}'
+    params = {'interval': interval, 'range': period}
+    headers = {'User-Agent': 'Mozilla/5.0'}
+
     try:
-        r = requests.get(url, timeout=10)
-        resp = jsonify(r.json())
+        r = requests.get(url, params=params, headers=headers, timeout=10)
+        data = r.json()
+        result = data.get('chart', {}).get('result', [])
+        if not result:
+            return jsonify({'error': 'no_data'}), 200
+
+        chart = result[0]
+        closes = chart['indicators']['quote'][0].get('close', [])
+        highs  = chart['indicators']['quote'][0].get('high',  [])
+        lows   = chart['indicators']['quote'][0].get('low',   [])
+        vols   = chart['indicators']['quote'][0].get('volume',[])
+
+        # Remove None values
+        data_clean = [(c,h,l,v) for c,h,l,v in zip(closes,highs,lows,vols)
+                      if c is not None and h is not None and l is not None]
+        if len(data_clean) < 14:
+            return jsonify({'error': 'insufficient_data'}), 200
+
+        c_list = [x[0] for x in data_clean]
+        h_list = [x[1] for x in data_clean]
+        l_list = [x[2] for x in data_clean]
+        v_list = [x[3] if x[3] else 0 for x in data_clean]
+
+        resp = jsonify({'c': c_list, 'h': h_list, 'l': l_list, 'v': v_list, 's': 'ok'})
         resp.headers['Access-Control-Allow-Origin'] = '*'
         return resp
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
-# ── Proxy: Forex/metals candles ───────────────────
-@app.route('/api/forex')
-def forex():
-    symbol     = request.args.get('symbol', '')
-    resolution = request.args.get('resolution', 'D')
-    from_ts    = request.args.get('from', '')
-    to_ts      = request.args.get('to', '')
-    key        = request.args.get('token', FINNHUB_KEY)
-
-    url = (f'https://finnhub.io/api/v1/forex/candle'
-           f'?symbol={symbol}&resolution={resolution}'
-           f'&from={from_ts}&to={to_ts}&token={key}')
-    try:
-        r = requests.get(url, timeout=10)
-        resp = jsonify(r.json())
-        resp.headers['Access-Control-Allow-Origin'] = '*'
-        return resp
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-# ── Proxy: Stock quote (current price) ───────────
-@app.route('/api/quote')
-def quote():
-    symbol = request.args.get('symbol', '')
-    key    = request.args.get('token', FINNHUB_KEY)
-    url    = f'https://finnhub.io/api/v1/quote?symbol={symbol}&token={key}'
-    try:
-        r = requests.get(url, timeout=10)
-        resp = jsonify(r.json())
-        resp.headers['Access-Control-Allow-Origin'] = '*'
-        return resp
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

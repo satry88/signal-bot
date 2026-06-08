@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>⚡ Signal Bot Pro</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Tajawal:wght@400;700;900&display=swap');
+:root{--bg:#080c12;--panel:#0d1420;--border:#1a2535;--green:#00e676;--red:#ff4444;--blue:#29b6f6;--gold:#ffd54f;--muted:#4a6080;--text:#c8d8e8;--white:#eaf2ff;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;padding-bottom:24px;}
+.header{background:linear-gradient(135deg,#0d1420,#0a1628);border-bottom:1px solid var(--border);padding:14px 16px 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.logo{font-size:18px;font-weight:900;color:var(--white);letter-spacing:-0.5px;}
+.logo span{display:block;font-size:10px;font-weight:400;color:var(--muted);font-family:'IBM Plex Mono',monospace;}
+.refresh-btn{background:rgba(41,182,246,0.12);border:1px solid rgba(41,182,246,0.3);color:var(--blue);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-family:'Tajawal',sans-serif;font-weight:700;transition:all 0.2s;}
+.refresh-btn:active{transform:scale(0.96);}
+@keyframes spin{to{transform:rotate(360deg);}}
+.spinning{animation:spin 1s linear infinite;}
+.tabs{display:flex;padding:12px 16px 0;gap:6px;border-bottom:1px solid var(--border);background:var(--bg);}
+.tab{flex:1;text-align:center;padding:9px 4px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;border-radius:4px 4px 0 0;}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+.timeframes{display:flex;padding:10px 16px;gap:6px;flex-wrap:wrap;align-items:center;}
+.tf{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--muted);background:var(--panel);border:1px solid var(--border);cursor:pointer;transition:all 0.2s;}
+.tf.active{color:var(--bg);background:var(--blue);border-color:var(--blue);}
+.status-bar{text-align:center;font-size:11px;color:var(--muted);padding:4px 16px;font-family:'IBM Plex Mono',monospace;min-height:22px;}
+.last-update{text-align:center;font-size:10px;color:var(--muted);padding:2px 16px 8px;font-family:'IBM Plex Mono',monospace;}
+.section-title{padding:6px 16px 4px;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1.5px;font-family:'IBM Plex Mono',monospace;}
+.card{margin:0 12px 8px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:13px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.card.buy{border-right:3px solid var(--green);}
+.card.sell{border-right:3px solid var(--red);}
+.card.hold{border-right:3px solid #546e7a;}
+.card-left{flex:1;min-width:0;}
+.card-sym{font-size:15px;font-weight:900;color:var(--white);font-family:'IBM Plex Mono',monospace;}
+.card-name{font-size:10px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card-mid{text-align:center;}
+.card-price{font-size:14px;font-weight:700;color:var(--white);font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
+.card-change{font-size:11px;font-family:'IBM Plex Mono',monospace;margin-top:1px;}
+.card-change.up{color:var(--green);}
+.card-change.dn{color:var(--red);}
+.card-right{text-align:left;}
+.signal-badge{display:inline-block;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
+.signal-badge.BUY{background:rgba(0,230,118,0.15);color:var(--green);border:1px solid rgba(0,230,118,0.3);}
+.signal-badge.SELL{background:rgba(255,68,68,0.15);color:var(--red);border:1px solid rgba(255,68,68,0.3);}
+.signal-badge.HOLD{background:rgba(84,110,122,0.2);color:#90a4ae;border:1px solid rgba(84,110,122,0.3);}
+.card-indicators{font-size:9px;color:var(--muted);margin-top:4px;font-family:'IBM Plex Mono',monospace;text-align:left;line-height:1.5;}
+.strength-wrap{margin-top:5px;display:flex;align-items:center;gap:6px;}
+.strength-bar{flex:1;height:3px;background:var(--border);border-radius:3px;overflow:hidden;}
+.strength-fill{height:100%;border-radius:3px;transition:width 0.5s ease;}
+.strength-val{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;}
+.loading{text-align:center;padding:40px 16px;color:var(--muted);font-size:13px;}
+.spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px;}
+.error-card{margin:0 12px 8px;background:rgba(255,68,68,0.07);border:1px solid rgba(255,68,68,0.2);border-radius:10px;padding:12px;font-size:11px;color:#ff8a80;text-align:center;font-family:'IBM Plex Mono',monospace;line-height:1.6;}
+.footer{text-align:center;padding:16px;color:var(--muted);font-size:10px;line-height:1.8;font-family:'IBM Plex Mono',monospace;}
+.src-badge{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:2px;}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">⚡ Signal Bot<span>Binance + Yahoo • حقيقي 24/7</span></div>
+  <button class="refresh-btn" id="refreshBtn" onclick="loadAll()">🔄 تحديث</button>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('crypto',this)">₿ عملات</div>
+  <div class="tab" onclick="switchTab('stocks',this)">📈 أسهم</div>
+  <div class="tab" onclick="switchTab('metals',this)">🥇 معادن</div>
+</div>
+<div class="timeframes" id="tfRow"></div>
+<div class="status-bar" id="statusMsg"></div>
+<div class="last-update" id="lastUpdate"></div>
+<div id="container"></div>
+<div class="footer">⚠️ للأغراض التعليمية فقط • ليس توصية استثمارية<br>Signal Bot Pro © 2026</div>
+
+<script>
+const SYMBOLS = {
+  crypto:  ['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT','DOGEUSDT','ADAUSDT','AVAXUSDT'],
+  stocks:  ['NVDA','AAPL','MSFT','META','GOOG','TSLA','AMZN','PLTR'],
+  metals:  ['GC=F','SI=F']   // Yahoo: Gold Futures, Silver Futures
+};
+const NAMES = {
+  BTCUSDT:'Bitcoin',ETHUSDT:'Ethereum',SOLUSDT:'Solana',BNBUSDT:'BNB',
+  XRPUSDT:'Ripple',DOGEUSDT:'Dogecoin',ADAUSDT:'Cardano',AVAXUSDT:'Avalanche',
+  NVDA:'NVIDIA',AAPL:'Apple',MSFT:'Microsoft',META:'Meta',
+  GOOG:'Google',TSLA:'Tesla',AMZN:'Amazon',PLTR:'Palantir',
+  'GC=F':'Gold Futures','SI=F':'Silver Futures'
+};
+
+const BASE = window.location.origin;
+let currentTab='crypto', currentTF='1h', loading=false;
+
+window.onload = () => { renderTFRow(); loadAll(); };
+
+function switchTab(t,el){
+  currentTab=t;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  currentTF = t==='crypto'?'1h':'1d';
+  renderTFRow(); loadAll();
+}
+function switchTF(t,el){
+  currentTF=t;
+  document.querySelectorAll('.tf').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active'); loadAll();
+}
+function renderTFRow(){
+  const row=document.getElementById('tfRow');
+  if(currentTab==='crypto'){
+    row.innerHTML=`
+      <div class="tf ${currentTF==='1h'?'active':''}" onclick="switchTF('1h',this)">1H</div>
+      <div class="tf ${currentTF==='4h'?'active':''}" onclick="switchTF('4h',this)">4H</div>
+      <div class="tf ${currentTF==='1d'?'active':''}" onclick="switchTF('1d',this)">1D</div>
+      <div class="tf ${currentTF==='1w'?'active':''}" onclick="switchTF('1w',this)">1W</div>`;
+  } else {
+    row.innerHTML=`
+      <div class="tf ${currentTF==='1d'?'active':''}" onclick="switchTF('1d',this)">1D</div>
+      <div class="tf ${currentTF==='1w'?'active':''}" onclick="switchTF('1w',this)">1W</div>`;
+  }
+}
+
+async function loadAll(){
+  if(loading) return;
+  loading=true;
+  const btn=document.getElementById('refreshBtn');
+  btn.classList.add('spinning'); btn.disabled=true;
+  document.getElementById('container').innerHTML='<div class="loading"><div class="spinner"></div>جارٍ التحليل...</div>';
+  document.getElementById('statusMsg').textContent='';
+
+  const syms=SYMBOLS[currentTab];
+  const results=[];
+  for(const sym of syms){
+    try{
+      let data;
+      if(currentTab==='crypto') data=await fetchBinance(sym,currentTF);
+      else data=await fetchYahoo(sym,currentTF);
+      results.push(data);
+    }catch(e){ results.push({sym,error:e.message}); }
+    if(currentTab!=='crypto') await delay(200);
+  }
+  renderCards(results);
+  document.getElementById('lastUpdate').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar-EG');
+  loading=false; btn.classList.remove('spinning'); btn.disabled=false;
+}
+
+// ── Binance (Crypto) ──────────────────────────────
+async function fetchBinance(symbol,tf){
+  const iMap={'1h':'1h','4h':'4h','1d':'1d','1w':'1w'};
+  const r=await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${iMap[tf]||'1d'}&limit=52`);
+  if(!r.ok) throw new Error('Binance '+r.status);
+  const raw=await r.json();
+  if(raw.length<14) throw new Error('بيانات غير كافية');
+  return buildResult(symbol,raw.map(c=>+c[4]),raw.map(c=>+c[2]),raw.map(c=>+c[3]),raw.map(c=>+c[5]),'Binance');
+}
+
+// ── Yahoo Finance (Stocks + Metals) ───────────────
+async function fetchYahoo(symbol,tf){
+  const interval = tf==='1w'?'1wk':'1d';
+  const period   = tf==='1w'?'2y':'1y';
+  const url=`${BASE}/api/yahoo?symbol=${symbol}&interval=${interval}&period=${period}`;
+  const r=await fetch(url);
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const d=await r.json();
+  if(d.error || !d.c || d.c.length<14) throw new Error('لا توجد بيانات كافية');
+  return buildResult(symbol,d.c,d.h,d.l,d.v,'Yahoo');
+}
+
+function buildResult(sym,closes,highs,lows,vols,src){
+  const price=closes[closes.length-1];
+  const prev=closes[closes.length-2];
+  const change=((price-prev)/prev)*100;
+  const rsi=calcRSI(closes,14);
+  const macd=calcMACD(closes);
+  const ema50=calcEMA(closes,50);
+  const ema200=calcEMA(closes,200);
+  const bb=calcBB(closes,20,2);
+  const stoch=calcStoch(highs,lows,closes,14);
+  const signal=genSignal(rsi,macd,closes,ema50,ema200,bb,stoch);
+  const strength=calcStrength(rsi,macd,closes,ema50,bb,stoch);
+  return{sym,price,change,rsi,macd,ema50,bb,stoch,signal,strength,src};
+}
+
+// ── Indicators ────────────────────────────────────
+function calcRSI(c,p=14){
+  if(c.length<p+1) return 50;
+  let g=0,l=0;
+  for(let i=c.length-p;i<c.length;i++){const d=c[i]-c[i-1];d>0?g+=d:l-=d;}
+  return 100-(100/(1+g/(l||0.0001)));
+}
+function calcEMA(c,p){
+  if(c.length<p) return c[c.length-1];
+  const k=2/(p+1); let e=c.slice(0,p).reduce((a,b)=>a+b,0)/p;
+  for(let i=p;i<c.length;i++) e=c[i]*k+e*(1-k); return e;
+}
+function calcMACD(c){
+  const e12=calcEMA(c,12),e26=calcEMA(c,26),line=e12-e26;
+  const ms=[];for(let i=26;i<=c.length;i++){ms.push(calcEMA(c.slice(0,i),12)-calcEMA(c.slice(0,i),26));}
+  return{line,signal:calcEMA(ms,9),hist:line-calcEMA(ms,9)};
+}
+function calcBB(c,p=20,m=2){
+  if(c.length<p) return{upper:0,lower:0,mid:0};
+  const s=c.slice(-p),mid=s.reduce((a,b)=>a+b,0)/p;
+  const sd=Math.sqrt(s.reduce((a,b)=>a+(b-mid)**2,0)/p);
+  return{upper:mid+m*sd,lower:mid-m*sd,mid};
+}
+function calcStoch(h,l,c,p=14){
+  const n=c.length;if(n<p) return 50;
+  const hi=Math.max(...h.slice(-p)),lo=Math.min(...l.slice(-p));
+  return lo===hi?50:((c[n-1]-lo)/(hi-lo))*100;
+}
+function genSignal(rsi,macd,closes,ema50,ema200,bb,stoch){
+  const price=closes[closes.length-1]; let score=0;
+  if(rsi<30)score+=2;else if(rsi<45)score+=1;else if(rsi>70)score-=2;else if(rsi>55)score-=1;
+  if(macd.hist>0&&macd.line>0)score+=2;else if(macd.hist>0)score+=1;
+  else if(macd.hist<0&&macd.line<0)score-=2;else if(macd.hist<0)score-=1;
+  if(price>ema50&&ema50>ema200)score+=2;else if(price>ema50)score+=1;
+  else if(price<ema50&&ema50<ema200)score-=2;else if(price<ema50)score-=1;
+  if(price<bb.lower)score+=1;else if(price>bb.upper)score-=1;
+  if(stoch<20)score+=1;else if(stoch>80)score-=1;
+  return score>=3?'BUY':score<=-3?'SELL':'HOLD';
+}
+function calcStrength(rsi,macd,closes,ema50,bb,stoch){
+  const price=closes[closes.length-1];let pts=0;
+  if(rsi<30||rsi>70)pts+=20;else pts+=10;
+  if(Math.abs(macd.hist)>0)pts+=20;
+  if(price>ema50)pts+=20;
+  if(price<bb.lower||price>bb.upper)pts+=20;
+  if(stoch<20||stoch>80)pts+=20;
+  return Math.min(pts,100);
+}
+
+// ── Render ────────────────────────────────────────
+function renderCards(results){
+  const el=document.getElementById('container'); el.innerHTML='';
+  const buy=results.filter(r=>!r.error&&r.signal==='BUY');
+  const sell=results.filter(r=>!r.error&&r.signal==='SELL');
+  const hold=results.filter(r=>!r.error&&r.signal==='HOLD');
+  const errs=results.filter(r=>r.error);
+  if(buy.length){el.innerHTML+=`<div class="section-title">🟢 شراء (${buy.length})</div>`;buy.forEach(r=>el.appendChild(card(r)));}
+  if(sell.length){el.innerHTML+=`<div class="section-title">🔴 بيع (${sell.length})</div>`;sell.forEach(r=>el.appendChild(card(r)));}
+  if(hold.length){el.innerHTML+=`<div class="section-title">⚪ انتظار (${hold.length})</div>`;hold.forEach(r=>el.appendChild(card(r)));}
+  if(errs.length){
+    el.innerHTML+=`<div class="section-title">⚠️ أخطاء (${errs.length})</div>`;
+    errs.forEach(r=>{const d=document.createElement('div');d.className='error-card';d.textContent=`${dispSym(r.sym)}: ${r.error}`;el.appendChild(d);});
+  }
+  const ok=results.filter(r=>!r.error).length;
+  document.getElementById('statusMsg').textContent=`✅ ${ok} رمز • ❌ ${errs.length} فشل`;
+}
+function card(r){
+  const div=document.createElement('div');
+  const cls=r.signal==='BUY'?'buy':r.signal==='SELL'?'sell':'hold';
+  div.className=`card ${cls}`;
+  const updn=r.change>=0?'up':'dn';
+  const arrow=r.change>=0?'▲':'▼';
+  const strColor=r.signal==='BUY'?'var(--green)':r.signal==='SELL'?'var(--red)':'#546e7a';
+  div.innerHTML=`
+    <div class="card-left">
+      <div class="card-sym">${dispSym(r.sym)}</div>
+      <div class="card-name">${NAMES[r.sym]||r.sym}</div>
+      <div class="strength-wrap">
+        <div class="strength-bar"><div class="strength-fill" style="width:${r.strength}%;background:${strColor}"></div></div>
+        <div class="strength-val">${r.strength}%</div>
+      </div>
+    </div>
+    <div class="card-mid">
+      <div class="card-price">${fmtPrice(r.price,r.sym)}</div>
+      <div class="card-change ${updn}">${arrow} ${Math.abs(r.change).toFixed(2)}%</div>
+    </div>
+    <div class="card-right">
+      <div class="signal-badge ${r.signal}">${r.signal}</div>
+      <div class="card-indicators">RSI ${r.rsi?r.rsi.toFixed(1):'--'}<br>MACD ${r.macd?(r.macd.hist>=0?'+':'')+r.macd.hist.toFixed(4):'--'}</div>
+    </div>`;
+  return div;
+}
+function dispSym(s){return s.replace('USDT','').replace('=F','');}
+function fmtPrice(p,s){
+  if(!p) return '--';
+  if(s&&(s.includes('BTC')||s.includes('GC'))) return '$'+p.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+  if(p<0.01) return '$'+p.toFixed(6);
+  if(p<1) return '$'+p.toFixed(4);
+  if(p<100) return '$'+p.toFixed(3);
+  return '$'+p.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+</script>
+</body>
+</html>
