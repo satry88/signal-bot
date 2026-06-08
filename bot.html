@@ -12,7 +12,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
 .header{background:linear-gradient(135deg,#0d1420,#0a1628);border-bottom:1px solid var(--border);padding:14px 16px 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
 .logo{font-size:18px;font-weight:900;color:var(--white);letter-spacing:-0.5px;}
 .logo span{display:block;font-size:10px;font-weight:400;color:var(--muted);font-family:'IBM Plex Mono',monospace;}
-.refresh-btn{background:rgba(41,182,246,0.12);border:1px solid rgba(41,182,246,0.3);color:var(--blue);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-family:'Tajawal',sans-serif;font-weight:700;transition:all 0.2s;}
+.refresh-btn{background:rgba(41,182,246,0.12);border:1px solid rgba(41,182,246,0.3);color:var(--blue);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-family:'Tajawal',sans-serif;font-weight:700;}
 .refresh-btn:active{transform:scale(0.96);}
 @keyframes spin{to{transform:rotate(360deg);}}
 .spinning{animation:spin 1s linear infinite;}
@@ -55,7 +55,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
 </head>
 <body>
 <div class="header">
-  <div class="logo">⚡ Signal Bot<span>Binance • 24/7 حقيقي</span></div>
+  <div class="logo">⚡ Signal Bot<span>Binance + Yahoo • 24/7</span></div>
   <button class="refresh-btn" id="refreshBtn" onclick="loadAll()">🔄 تحديث</button>
 </div>
 <div class="tabs">
@@ -70,23 +70,15 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
 <div class="footer">⚠️ للأغراض التعليمية فقط • ليس توصية استثمارية<br>Signal Bot Pro © 2026</div>
 
 <script>
-// ── Symbols ───────────────────────────────────────
-// كل شيء من Binance الآن — بما في ذلك الذهب والفضة والأسهم
-const SYMBOLS = {
-  crypto: ['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT','DOGEUSDT','ADAUSDT','AVAXUSDT'],
-  stocks: ['NVDAUSDT','AAPLUSDT','MSFTUSD','METAUSDT','GOOGLUSDT','TSLAUSDT','AMZNUSDT','PLTRUSDT'],
-  metals: ['XAUUSDT','XAGUSDT']
-};
-
-// Binance يدعم بعض الأسهم عبر tokenized stocks
-// لكن الأكثر موثوقية: نستخدم Yahoo proxy للأسهم فقط
-const STOCK_SYMBOLS  = ['NVDA','AAPL','MSFT','META','GOOG','TSLA','AMZN','PLTR'];
-const METAL_SYMBOLS  = ['XAUUSDT','XAGUSDT']; // Binance مباشر
+// Yahoo Spot symbols للمعادن (سعر فوري حقيقي)
+const METAL_YAHOO = ['XAUUSD=X','XAGUSD=X'];
+const STOCK_YAHOO = ['NVDA','AAPL','MSFT','META','GOOG','TSLA','AMZN','PLTR'];
+const CRYPTO_BINANCE = ['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT','DOGEUSDT','ADAUSDT','AVAXUSDT'];
 
 const NAMES = {
   BTCUSDT:'Bitcoin',ETHUSDT:'Ethereum',SOLUSDT:'Solana',BNBUSDT:'BNB',
   XRPUSDT:'Ripple',DOGEUSDT:'Dogecoin',ADAUSDT:'Cardano',AVAXUSDT:'Avalanche',
-  XAUUSDT:'Gold (XAU/USDT)',XAGUSDT:'Silver (XAG/USDT)',
+  'XAUUSD=X':'Gold Spot (XAU/USD)','XAGUSD=X':'Silver Spot (XAG/USD)',
   NVDA:'NVIDIA',AAPL:'Apple',MSFT:'Microsoft',META:'Meta',
   GOOG:'Google',TSLA:'Tesla',AMZN:'Amazon',PLTR:'Palantir'
 };
@@ -110,8 +102,6 @@ function switchTF(t,el){
 }
 function renderTFRow(){
   const row=document.getElementById('tfRow');
-  // الأسهم: Yahoo يدعم 1H,4H,1D,1W
-  // المعادن والعملات: Binance يدعم الكل
   row.innerHTML=`
     <div class="tf ${currentTF==='1h'?'active':''}" onclick="switchTF('1h',this)">1H</div>
     <div class="tf ${currentTF==='4h'?'active':''}" onclick="switchTF('4h',this)">4H</div>
@@ -125,27 +115,23 @@ async function loadAll(){
   const btn=document.getElementById('refreshBtn');
   btn.classList.add('spinning'); btn.disabled=true;
   document.getElementById('container').innerHTML='<div class="loading"><div class="spinner"></div>جارٍ التحليل...</div>';
-  document.getElementById('statusMsg').textContent='';
 
-  let syms, results=[];
+  const results=[];
 
   if(currentTab==='crypto'){
-    syms=['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT','DOGEUSDT','ADAUSDT','AVAXUSDT'];
-    for(const s of syms){
+    for(const s of CRYPTO_BINANCE){
       try{ results.push(await fetchBinance(s,currentTF)); }
       catch(e){ results.push({sym:s,error:e.message}); }
     }
   } else if(currentTab==='metals'){
-    // الذهب والفضة من Binance مباشرة = نفس سعر بينانس
-    syms=['XAUUSDT','XAGUSDT'];
-    for(const s of syms){
-      try{ results.push(await fetchBinance(s,currentTF)); }
+    // Yahoo Spot: XAUUSD=X و XAGUSD=X — سعر فوري حقيقي
+    for(const s of METAL_YAHOO){
+      try{ results.push(await fetchYahoo(s,currentTF)); }
       catch(e){ results.push({sym:s,error:e.message}); }
+      await delay(200);
     }
   } else {
-    // الأسهم من Yahoo عبر proxy
-    syms=STOCK_SYMBOLS;
-    for(const s of syms){
+    for(const s of STOCK_YAHOO){
       try{ results.push(await fetchYahoo(s,currentTF)); }
       catch(e){ results.push({sym:s,error:e.message}); }
       await delay(150);
@@ -157,22 +143,19 @@ async function loadAll(){
   loading=false; btn.classList.remove('spinning'); btn.disabled=false;
 }
 
-// ── Binance (crypto + metals) ─────────────────────
 async function fetchBinance(symbol,tf){
   const iMap={'1h':'1h','4h':'4h','1d':'1d','1w':'1w'};
-  const url=`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${iMap[tf]||'1h'}&limit=60`;
-  const r=await fetch(url);
+  const r=await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${iMap[tf]||'1h'}&limit=60`);
   if(!r.ok) throw new Error('Binance '+r.status);
   const raw=await r.json();
   if(!Array.isArray(raw)||raw.length<14) throw new Error('بيانات غير كافية');
   return buildResult(symbol,raw.map(c=>+c[4]),raw.map(c=>+c[2]),raw.map(c=>+c[3]),raw.map(c=>+c[5]));
 }
 
-// ── Yahoo (stocks only) ───────────────────────────
 async function fetchYahoo(symbol,tf){
   const iMap={'1h':'1h','4h':'60m','1d':'1d','1w':'1wk'};
   const yInterval=iMap[tf]||'1d';
-  const url=`${BASE}/api/yahoo?symbol=${symbol}&interval=${yInterval}`;
+  const url=`${BASE}/api/yahoo?symbol=${encodeURIComponent(symbol)}&interval=${yInterval}`;
   const r=await fetch(url);
   if(!r.ok) throw new Error('HTTP '+r.status);
   const d=await r.json();
@@ -195,7 +178,6 @@ function buildResult(sym,closes,highs,lows,vols){
   return{sym,price,change,rsi,macd,ema50,bb,stoch,signal,strength};
 }
 
-// ── Indicators ────────────────────────────────────
 function calcRSI(c,p=14){
   if(c.length<p+1) return 50;
   let g=0,l=0;
@@ -246,7 +228,6 @@ function calcStrength(rsi,macd,closes,ema50,bb,stoch){
   return Math.min(pts,100);
 }
 
-// ── Render ────────────────────────────────────────
 function renderCards(results){
   const el=document.getElementById('container');el.innerHTML='';
   const buy=results.filter(r=>!r.error&&r.signal==='BUY');
@@ -292,9 +273,8 @@ function card(r){
 }
 
 function dispSym(s){
-  if(s==='XAUUSDT') return 'XAU/USDT';
-  if(s==='XAGUSDT') return 'XAG/USDT';
-  return s.replace('USDT','').replace('=F','');
+  const m={'XAUUSD=X':'XAU/USD','XAGUSD=X':'XAG/USD'};
+  return m[s]||s.replace('USDT','');
 }
 function fmtPrice(p,s){
   if(!p) return '--';
