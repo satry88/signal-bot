@@ -122,7 +122,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
   <div class="tf" onclick="switchTF('1d',this)">1D</div>
   <div class="tf" onclick="switchTF('1w',this)">1W</div>
 </div>
-<div id="mtfNote" class="mtf-note">⚡ يحلل 1H + 1D + 1W تلقائياً ويعطيك إشارة موحدة</div>
+<div id="mtfNote" class="mtf-note">⚡ يحلل 3 فريمات تلقائياً (عملات: 1H+1D+1W • أسهم/معادن: 4H+1D+1W)</div>
 
 <div class="status-bar" id="statusMsg"></div>
 <div class="last-update" id="lastUpdate"></div>
@@ -130,13 +130,13 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min
 <div class="footer">⚠️ للأغراض التعليمية فقط • ليس توصية استثمارية<br>Signal Bot Pro © 2026</div>
 
 <script>
-const METAL_YAHOO  = ['XAUUSD=X','XAGUSD=X'];
+const METAL_YAHOO  = ['GC=F','SI=F'];
 const STOCK_YAHOO  = ['NVDA','AAPL','MSFT','META','GOOG','TSLA','AMZN','PLTR'];
 const CRYPTO_BIN   = ['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT','DOGEUSDT','ADAUSDT','AVAXUSDT'];
 const NAMES = {
   BTCUSDT:'Bitcoin',ETHUSDT:'Ethereum',SOLUSDT:'Solana',BNBUSDT:'BNB',
   XRPUSDT:'Ripple',DOGEUSDT:'Dogecoin',ADAUSDT:'Cardano',AVAXUSDT:'Avalanche',
-  'XAUUSD=X':'Gold Spot','XAGUSD=X':'Silver Spot',
+  'GC=F':'Gold (الذهب)','SI=F':'Silver (الفضة)',
   NVDA:'NVIDIA',AAPL:'Apple',MSFT:'Microsoft',META:'Meta',
   GOOG:'Google',TSLA:'Tesla',AMZN:'Amazon',PLTR:'Palantir'
 };
@@ -144,8 +144,8 @@ const NAMES = {
 // MTF: 3 فريمات للتحليل
 const MTF_FRAMES = {
   crypto: ['1h','1d','1w'],
-  stocks: ['1h','1d','1w'],
-  metals: ['1h','1d','1w']
+  stocks: ['4h','1d','1w'],
+  metals: ['4h','1d','1w']
 };
 
 const BASE = window.location.origin;
@@ -493,7 +493,7 @@ function card(r){
 }
 
 function dispSym(s){
-  const m={'XAUUSD=X':'XAU/USD','XAGUSD=X':'XAG/USD'};
+  const m={'GC=F':'GOLD','SI=F':'SILVER'};
   return m[s]||s.replace('USDT','');
 }
 function fmtPrice(p,s){
