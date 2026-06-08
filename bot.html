@@ -10,131 +10,208 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;padding-bottom:24px;}
 .header{background:linear-gradient(135deg,#0d1420,#0a1628);border-bottom:1px solid var(--border);padding:14px 16px 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.logo{font-size:18px;font-weight:900;color:var(--white);letter-spacing:-0.5px;}
+.logo{font-size:17px;font-weight:900;color:var(--white);}
 .logo span{display:block;font-size:10px;font-weight:400;color:var(--muted);font-family:'IBM Plex Mono',monospace;}
 .refresh-btn{background:rgba(41,182,246,0.12);border:1px solid rgba(41,182,246,0.3);color:var(--blue);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-family:'Tajawal',sans-serif;font-weight:700;}
-.refresh-btn:active{transform:scale(0.96);}
 @keyframes spin{to{transform:rotate(360deg);}}
 .spinning{animation:spin 1s linear infinite;}
 .tabs{display:flex;padding:12px 16px 0;gap:6px;border-bottom:1px solid var(--border);background:var(--bg);}
-.tab{flex:1;text-align:center;padding:9px 4px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;border-radius:4px 4px 0 0;}
+.tab{flex:1;text-align:center;padding:9px 4px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;}
 .tab.active{color:var(--blue);border-bottom-color:var(--blue);}
-.timeframes{display:flex;padding:10px 16px;gap:6px;flex-wrap:wrap;align-items:center;}
+.mode-row{display:flex;padding:10px 16px;gap:8px;align-items:center;}
+.mode-btn{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;cursor:pointer;transition:all 0.2s;border:1px solid var(--border);background:var(--panel);color:var(--muted);}
+.mode-btn.active{background:var(--gold);color:#000;border-color:var(--gold);}
+.mode-btn.single.active{background:var(--blue);color:#000;border-color:var(--blue);}
+.tf-row{display:flex;padding:0 16px 10px;gap:6px;}
 .tf{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--muted);background:var(--panel);border:1px solid var(--border);cursor:pointer;transition:all 0.2s;}
 .tf.active{color:var(--bg);background:var(--blue);border-color:var(--blue);}
 .status-bar{text-align:center;font-size:11px;color:var(--muted);padding:4px 16px;font-family:'IBM Plex Mono',monospace;min-height:22px;}
 .last-update{text-align:center;font-size:10px;color:var(--muted);padding:2px 16px 8px;font-family:'IBM Plex Mono',monospace;}
 .section-title{padding:6px 16px 4px;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1.5px;font-family:'IBM Plex Mono',monospace;}
-.card{margin:0 12px 8px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:13px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+
+/* ── MTF Card ── */
+.card{margin:0 12px 12px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px;}
 .card.buy{border-right:3px solid var(--green);}
 .card.sell{border-right:3px solid var(--red);}
 .card.hold{border-right:3px solid #546e7a;}
-.card-left{flex:1;min-width:0;}
-.card-sym{font-size:15px;font-weight:900;color:var(--white);font-family:'IBM Plex Mono',monospace;}
-.card-name{font-size:10px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.card-mid{text-align:center;}
-.card-price{font-size:14px;font-weight:700;color:var(--white);font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
-.card-change{font-size:11px;font-family:'IBM Plex Mono',monospace;margin-top:1px;}
+.card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.card-sym{font-size:16px;font-weight:900;color:var(--white);font-family:'IBM Plex Mono',monospace;}
+.card-name{font-size:10px;color:var(--muted);margin-top:1px;}
+.card-price{font-size:15px;font-weight:700;color:var(--white);font-family:'IBM Plex Mono',monospace;}
+.card-change{font-size:11px;font-family:'IBM Plex Mono',monospace;}
 .card-change.up{color:var(--green);}
 .card-change.dn{color:var(--red);}
-.card-right{text-align:left;}
-.signal-badge{display:inline-block;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
+.signal-badge{display:inline-block;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
 .signal-badge.BUY{background:rgba(0,230,118,0.15);color:var(--green);border:1px solid rgba(0,230,118,0.3);}
 .signal-badge.SELL{background:rgba(255,68,68,0.15);color:var(--red);border:1px solid rgba(255,68,68,0.3);}
 .signal-badge.HOLD{background:rgba(84,110,122,0.2);color:#90a4ae;border:1px solid rgba(84,110,122,0.3);}
-.card-indicators{font-size:9px;color:var(--muted);margin-top:4px;font-family:'IBM Plex Mono',monospace;text-align:left;line-height:1.5;}
-.strength-wrap{margin-top:5px;display:flex;align-items:center;gap:6px;}
-.strength-bar{flex:1;height:3px;background:var(--border);border-radius:3px;overflow:hidden;}
-.strength-fill{height:100%;border-radius:3px;transition:width 0.5s ease;}
-.strength-val{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;}
+
+/* MTF Timeframe Row */
+.mtf-row{display:flex;gap:6px;margin-bottom:10px;}
+.mtf-box{flex:1;border-radius:8px;padding:8px 6px;text-align:center;border:1px solid var(--border);}
+.mtf-box.buy{background:rgba(0,230,118,0.08);border-color:rgba(0,230,118,0.25);}
+.mtf-box.sell{background:rgba(255,68,68,0.08);border-color:rgba(255,68,68,0.25);}
+.mtf-box.hold{background:rgba(84,110,122,0.08);}
+.mtf-tf{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-weight:700;}
+.mtf-sig{font-size:11px;font-weight:900;font-family:'IBM Plex Mono',monospace;margin:2px 0;}
+.mtf-sig.BUY{color:var(--green);}
+.mtf-sig.SELL{color:var(--red);}
+.mtf-sig.HOLD{color:#90a4ae;}
+.mtf-score{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;}
+
+/* Strength */
+.strength-wrap{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.strength-label{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;width:55px;}
+.strength-bar{flex:1;height:5px;background:var(--border);border-radius:5px;overflow:hidden;}
+.strength-fill{height:100%;border-radius:5px;transition:width 0.6s ease;}
+.strength-pct{font-size:10px;font-family:'IBM Plex Mono',monospace;width:32px;text-align:left;}
+
+/* Indicators */
+.ind-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;}
+.ind-box{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:6px;text-align:center;}
+.ind-label{font-size:8px;color:var(--muted);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;}
+.ind-val{font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;margin:2px 0;}
+.ind-status{font-size:9px;font-family:'IBM Plex Mono',monospace;}
+.bull{color:var(--green);}
+.bear{color:var(--red);}
+.neut{color:#90a4ae;}
+
+/* Confluence */
+.conf-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid var(--border);}
+.conf-label{font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',monospace;}
+.conf-dots{display:flex;gap:3px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--border);}
+.dot.on.buy{background:var(--green);}
+.dot.on.sell{background:var(--red);}
+.dot.on.hold{background:#546e7a;}
+.conf-text{font-size:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+
+/* MTF Agreement badge */
+.agree-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:9px;font-family:'IBM Plex Mono',monospace;font-weight:700;margin-bottom:8px;}
+.agree-badge.full{background:rgba(0,230,118,0.15);color:var(--green);border:1px solid rgba(0,230,118,0.3);}
+.agree-badge.partial{background:rgba(255,213,79,0.15);color:var(--gold);border:1px solid rgba(255,213,79,0.3);}
+.agree-badge.conflict{background:rgba(84,110,122,0.15);color:#90a4ae;border:1px solid rgba(84,110,122,0.3);}
+
 .loading{text-align:center;padding:40px 16px;color:var(--muted);font-size:13px;}
 .spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px;}
-.error-card{margin:0 12px 8px;background:rgba(255,68,68,0.07);border:1px solid rgba(255,68,68,0.2);border-radius:10px;padding:12px;font-size:11px;color:#ff8a80;text-align:center;font-family:'IBM Plex Mono',monospace;line-height:1.6;}
+.error-card{margin:0 12px 8px;background:rgba(255,68,68,0.07);border:1px solid rgba(255,68,68,0.2);border-radius:10px;padding:12px;font-size:11px;color:#ff8a80;text-align:center;font-family:'IBM Plex Mono',monospace;}
 .footer{text-align:center;padding:16px;color:var(--muted);font-size:10px;line-height:1.8;font-family:'IBM Plex Mono',monospace;}
+.mtf-note{text-align:center;font-size:10px;color:var(--gold);padding:4px 16px 0;font-family:'IBM Plex Mono',monospace;}
 </style>
 </head>
 <body>
 <div class="header">
-  <div class="logo">⚡ Signal Bot<span>Binance + Yahoo • 24/7</span></div>
-  <button class="refresh-btn" id="refreshBtn" onclick="loadAll()">🔄 تحديث</button>
+  <div class="logo">⚡ Signal Bot Pro<span>MTF • 7 مؤشرات • 3 فريمات • 24/7</span></div>
+  <button class="refresh-btn" id="refreshBtn" onclick="loadAll()">🔄</button>
 </div>
+
 <div class="tabs">
   <div class="tab active" onclick="switchTab('crypto',this)">₿ عملات</div>
   <div class="tab" onclick="switchTab('stocks',this)">📈 أسهم</div>
   <div class="tab" onclick="switchTab('metals',this)">🥇 معادن</div>
 </div>
-<div class="timeframes" id="tfRow"></div>
+
+<div class="mode-row">
+  <div class="mode-btn active" id="btnMTF" onclick="switchMode('mtf')">🔗 MTF ترابط</div>
+  <div class="mode-btn single" id="btnSingle" onclick="switchMode('single')">📊 فريم واحد</div>
+</div>
+
+<div id="tfSingleRow" class="tf-row" style="display:none">
+  <div class="tf active" onclick="switchTF('1h',this)">1H</div>
+  <div class="tf" onclick="switchTF('4h',this)">4H</div>
+  <div class="tf" onclick="switchTF('1d',this)">1D</div>
+  <div class="tf" onclick="switchTF('1w',this)">1W</div>
+</div>
+<div id="mtfNote" class="mtf-note">⚡ يحلل 1H + 1D + 1W تلقائياً ويعطيك إشارة موحدة</div>
+
 <div class="status-bar" id="statusMsg"></div>
 <div class="last-update" id="lastUpdate"></div>
 <div id="container"></div>
 <div class="footer">⚠️ للأغراض التعليمية فقط • ليس توصية استثمارية<br>Signal Bot Pro © 2026</div>
 
 <script>
-// Yahoo Spot symbols للمعادن (سعر فوري حقيقي)
-const METAL_YAHOO = ['XAUUSD=X','XAGUSD=X'];
-const STOCK_YAHOO = ['NVDA','AAPL','MSFT','META','GOOG','TSLA','AMZN','PLTR'];
-const CRYPTO_BINANCE = ['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT','DOGEUSDT','ADAUSDT','AVAXUSDT'];
-
+const METAL_YAHOO  = ['XAUUSD=X','XAGUSD=X'];
+const STOCK_YAHOO  = ['NVDA','AAPL','MSFT','META','GOOG','TSLA','AMZN','PLTR'];
+const CRYPTO_BIN   = ['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT','DOGEUSDT','ADAUSDT','AVAXUSDT'];
 const NAMES = {
   BTCUSDT:'Bitcoin',ETHUSDT:'Ethereum',SOLUSDT:'Solana',BNBUSDT:'BNB',
   XRPUSDT:'Ripple',DOGEUSDT:'Dogecoin',ADAUSDT:'Cardano',AVAXUSDT:'Avalanche',
-  'XAUUSD=X':'Gold Spot (XAU/USD)','XAGUSD=X':'Silver Spot (XAG/USD)',
+  'XAUUSD=X':'Gold Spot','XAGUSD=X':'Silver Spot',
   NVDA:'NVIDIA',AAPL:'Apple',MSFT:'Microsoft',META:'Meta',
   GOOG:'Google',TSLA:'Tesla',AMZN:'Amazon',PLTR:'Palantir'
 };
 
-const BASE = window.location.origin;
-let currentTab='crypto', currentTF='1h', loading=false;
+// MTF: 3 فريمات للتحليل
+const MTF_FRAMES = {
+  crypto: ['1h','1d','1w'],
+  stocks: ['1h','1d','1w'],
+  metals: ['1h','1d','1w']
+};
 
-window.onload = () => { renderTFRow(); loadAll(); };
+const BASE = window.location.origin;
+let currentTab='crypto', currentTF='1h', mode='mtf', loading=false;
+
+window.onload = () => { loadAll(); };
 
 function switchTab(t,el){
   currentTab=t;
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   el.classList.add('active');
-  currentTF='1h';
-  renderTFRow(); loadAll();
+  loadAll();
 }
 function switchTF(t,el){
   currentTF=t;
   document.querySelectorAll('.tf').forEach(x=>x.classList.remove('active'));
   el.classList.add('active'); loadAll();
 }
-function renderTFRow(){
-  const row=document.getElementById('tfRow');
-  row.innerHTML=`
-    <div class="tf ${currentTF==='1h'?'active':''}" onclick="switchTF('1h',this)">1H</div>
-    <div class="tf ${currentTF==='4h'?'active':''}" onclick="switchTF('4h',this)">4H</div>
-    <div class="tf ${currentTF==='1d'?'active':''}" onclick="switchTF('1d',this)">1D</div>
-    <div class="tf ${currentTF==='1w'?'active':''}" onclick="switchTF('1w',this)">1W</div>`;
+function switchMode(m){
+  mode=m;
+  document.getElementById('btnMTF').className='mode-btn'+(m==='mtf'?' active':'');
+  document.getElementById('btnSingle').className='mode-btn single'+(m==='single'?' active':'');
+  document.getElementById('tfSingleRow').style.display=m==='single'?'flex':'none';
+  document.getElementById('mtfNote').style.display=m==='mtf'?'block':'none';
+  loadAll();
 }
 
+// ── MAIN LOADER ───────────────────────────────────
 async function loadAll(){
   if(loading) return;
   loading=true;
   const btn=document.getElementById('refreshBtn');
   btn.classList.add('spinning'); btn.disabled=true;
   document.getElementById('container').innerHTML='<div class="loading"><div class="spinner"></div>جارٍ التحليل...</div>';
+  document.getElementById('statusMsg').textContent='';
 
+  const syms = currentTab==='crypto'?CRYPTO_BIN:currentTab==='metals'?METAL_YAHOO:STOCK_YAHOO;
   const results=[];
 
-  if(currentTab==='crypto'){
-    for(const s of CRYPTO_BINANCE){
-      try{ results.push(await fetchBinance(s,currentTF)); }
-      catch(e){ results.push({sym:s,error:e.message}); }
-    }
-  } else if(currentTab==='metals'){
-    // Yahoo Spot: XAUUSD=X و XAGUSD=X — سعر فوري حقيقي
-    for(const s of METAL_YAHOO){
-      try{ results.push(await fetchYahoo(s,currentTF)); }
-      catch(e){ results.push({sym:s,error:e.message}); }
-      await delay(200);
+  if(mode==='mtf'){
+    // تحليل 3 فريمات لكل رمز
+    const frames = MTF_FRAMES[currentTab];
+    for(const sym of syms){
+      try{
+        const analyses={};
+        for(const tf of frames){
+          try{
+            analyses[tf] = currentTab==='crypto'
+              ? await fetchBinance(sym,tf)
+              : await fetchYahoo(sym,tf);
+          }catch(e){ analyses[tf]=null; }
+          await delay(100);
+        }
+        results.push(buildMTF(sym, analyses, frames));
+      }catch(e){ results.push({sym,error:e.message}); }
     }
   } else {
-    for(const s of STOCK_YAHOO){
-      try{ results.push(await fetchYahoo(s,currentTF)); }
-      catch(e){ results.push({sym:s,error:e.message}); }
-      await delay(150);
+    // فريم واحد
+    for(const sym of syms){
+      try{
+        const data = currentTab==='crypto'
+          ? await fetchBinance(sym,currentTF)
+          : await fetchYahoo(sym,currentTF);
+        results.push(data);
+      }catch(e){ results.push({sym,error:e.message}); }
+      if(currentTab!=='crypto') await delay(150);
     }
   }
 
@@ -143,27 +220,96 @@ async function loadAll(){
   loading=false; btn.classList.remove('spinning'); btn.disabled=false;
 }
 
-async function fetchBinance(symbol,tf){
-  const iMap={'1h':'1h','4h':'4h','1d':'1d','1w':'1w'};
-  const r=await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${iMap[tf]||'1h'}&limit=60`);
-  if(!r.ok) throw new Error('Binance '+r.status);
-  const raw=await r.json();
-  if(!Array.isArray(raw)||raw.length<14) throw new Error('بيانات غير كافية');
-  return buildResult(symbol,raw.map(c=>+c[4]),raw.map(c=>+c[2]),raw.map(c=>+c[3]),raw.map(c=>+c[5]));
+// ── MTF BUILDER ───────────────────────────────────
+function buildMTF(sym, analyses, frames){
+  // احسب إشارة كل فريم
+  const tfResults={};
+  let validFrames=0;
+  let latestPrice=0, latestChange=0;
+
+  for(const tf of frames){
+    if(analyses[tf]){
+      tfResults[tf]=analyses[tf];
+      validFrames++;
+      if(tf===frames[0]){ // أصغر فريم = أحدث سعر
+        latestPrice=analyses[tf].price;
+        latestChange=analyses[tf].change;
+      }
+    }
+  }
+
+  if(validFrames===0) throw new Error('لا توجد بيانات');
+
+  // وزن كل فريم: 1W=3, 1D=2, 1H=1
+  const weights={'1w':3,'1d':2,'1h':1,'4h':1,'60m':1};
+  let totalScore=0, totalWeight=0;
+  const frameSignals={};
+
+  for(const tf of frames){
+    if(tfResults[tf]){
+      const w=weights[tf]||1;
+      const s=tfResults[tf].score||0;
+      const maxS=tfResults[tf].maxScore||12;
+      // نرمّل النتيجة -1 إلى +1
+      const normalized=s/maxS;
+      totalScore+=normalized*w;
+      totalWeight+=w;
+      frameSignals[tf]={
+        signal:tfResults[tf].signal,
+        score:s,
+        strength:tfResults[tf].confidence||50
+      };
+    }
+  }
+
+  const avgScore = totalWeight>0 ? totalScore/totalWeight : 0;
+
+  // إشارة موحدة
+  let mtfSignal, mtfStrength;
+  if(avgScore >= 0.35)      { mtfSignal='BUY';  mtfStrength=Math.round(avgScore*100); }
+  else if(avgScore <= -0.35){ mtfSignal='SELL'; mtfStrength=Math.round(Math.abs(avgScore)*100); }
+  else                       { mtfSignal='HOLD'; mtfStrength=Math.round(Math.abs(avgScore)*100); }
+
+  // تطابق الفريمات
+  const signals=Object.values(frameSignals).map(x=>x.signal);
+  const buyCount=signals.filter(s=>s==='BUY').length;
+  const sellCount=signals.filter(s=>s==='SELL').length;
+  let agreement;
+  if(buyCount===signals.length||sellCount===signals.length) agreement='full';
+  else if(buyCount>=2||sellCount>=2) agreement='partial';
+  else agreement='conflict';
+
+  return {
+    sym, price:latestPrice, change:latestChange,
+    mtfSignal, mtfStrength, agreement, frameSignals,
+    frames, tfResults,
+    // للعرض: استخدم بيانات أصغر فريم
+    ...(tfResults[frames[0]]||{}),
+    signal:mtfSignal, confidence:Math.min(mtfStrength,100)
+  };
 }
 
+// ── FETCHERS ─────────────────────────────────────
+async function fetchBinance(symbol,tf){
+  const iMap={'1h':'1h','4h':'4h','1d':'1d','1w':'1w'};
+  const r=await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${iMap[tf]||'1h'}&limit=220`);
+  if(!r.ok) throw new Error('Binance '+r.status);
+  const raw=await r.json();
+  if(!Array.isArray(raw)||raw.length<20) throw new Error('بيانات غير كافية');
+  return analyze(symbol,raw.map(c=>+c[4]),raw.map(c=>+c[2]),raw.map(c=>+c[3]),raw.map(c=>+c[5]));
+}
 async function fetchYahoo(symbol,tf){
   const iMap={'1h':'1h','4h':'60m','1d':'1d','1w':'1wk'};
-  const yInterval=iMap[tf]||'1d';
-  const url=`${BASE}/api/yahoo?symbol=${encodeURIComponent(symbol)}&interval=${yInterval}`;
+  const url=`${BASE}/api/yahoo?symbol=${encodeURIComponent(symbol)}&interval=${iMap[tf]||'1d'}`;
   const r=await fetch(url);
   if(!r.ok) throw new Error('HTTP '+r.status);
   const d=await r.json();
-  if(d.error||!d.c||d.c.length<14) throw new Error(d.error||'بيانات غير كافية');
-  return buildResult(symbol,d.c,d.h,d.l,d.v);
+  if(d.error||!d.c||d.c.length<20) throw new Error(d.error||'بيانات غير كافية');
+  return analyze(symbol,d.c,d.h,d.l,d.v);
 }
 
-function buildResult(sym,closes,highs,lows,vols){
+// ── ANALYSIS ENGINE ───────────────────────────────
+function analyze(sym,closes,highs,lows,vols){
   const price=closes[closes.length-1];
   const prev=closes[closes.length-2];
   const change=((price-prev)/prev)*100;
@@ -172,12 +318,31 @@ function buildResult(sym,closes,highs,lows,vols){
   const ema50=calcEMA(closes,50);
   const ema200=calcEMA(closes,200);
   const bb=calcBB(closes,20,2);
-  const stoch=calcStoch(highs,lows,closes,14);
-  const signal=genSignal(rsi,macd,closes,ema50,ema200,bb,stoch);
-  const strength=calcStrength(rsi,macd,closes,ema50,bb,stoch);
-  return{sym,price,change,rsi,macd,ema50,bb,stoch,signal,strength};
+  const willR=calcWilliamsR(highs,lows,closes,14);
+  const atr=calcATR(highs,lows,closes,14);
+  const st=calcSupertrend(highs,lows,closes,10,3);
+  const volRatio=calcVolRatio(vols);
+
+  let score=0;
+  if(price>ema50&&ema50>ema200) score+=3; else if(price>ema50) score+=1;
+  else if(price<ema50&&ema50<ema200) score-=3; else if(price<ema50) score-=1;
+  if(st.trend==='up') score+=2; else score-=2;
+  if(macd.hist>0&&macd.line>0) score+=2; else if(macd.hist>0) score+=1;
+  else if(macd.hist<0&&macd.line<0) score-=2; else if(macd.hist<0) score-=1;
+  if(rsi<30) score+=2; else if(rsi<40) score+=1;
+  else if(rsi>70) score-=2; else if(rsi>60) score-=1;
+  if(willR<-80) score+=1; else if(willR>-20) score-=1;
+  if(price<bb.lower) score+=1; else if(price>bb.upper) score-=1;
+  if(volRatio>1.5&&score>0) score+=1; else if(volRatio>1.5&&score<0) score-=1;
+
+  const maxScore=12;
+  const signal=score>=6?'BUY':score<=-6?'SELL':'HOLD';
+  const confidence=Math.round((Math.abs(score)/maxScore)*100);
+
+  return{sym,price,change,rsi,macd,ema50,ema200,bb,willR,atr,st,volRatio,signal,confidence,score,maxScore};
 }
 
+// ── INDICATORS ────────────────────────────────────
 function calcRSI(c,p=14){
   if(c.length<p+1) return 50;
   let g=0,l=0;
@@ -186,8 +351,10 @@ function calcRSI(c,p=14){
 }
 function calcEMA(c,p){
   if(c.length<p) return c[c.length-1];
-  const k=2/(p+1);let e=c.slice(0,p).reduce((a,b)=>a+b,0)/p;
-  for(let i=p;i<c.length;i++) e=c[i]*k+e*(1-k);return e;
+  const k=2/(p+1);
+  let e=c.slice(0,p).reduce((a,b)=>a+b,0)/p;
+  for(let i=p;i<c.length;i++) e=c[i]*k+e*(1-k);
+  return e;
 }
 function calcMACD(c){
   const e12=calcEMA(c,12),e26=calcEMA(c,26),line=e12-e26;
@@ -202,32 +369,32 @@ function calcBB(c,p=20,m=2){
   const sd=Math.sqrt(s.reduce((a,b)=>a+(b-mid)**2,0)/p);
   return{upper:mid+m*sd,lower:mid-m*sd,mid};
 }
-function calcStoch(h,l,c,p=14){
-  const n=c.length;if(n<p) return 50;
+function calcWilliamsR(h,l,c,p=14){
+  const n=c.length; if(n<p) return -50;
   const hi=Math.max(...h.slice(-p)),lo=Math.min(...l.slice(-p));
-  return lo===hi?50:((c[n-1]-lo)/(hi-lo))*100;
+  return hi===lo?-50:((hi-c[n-1])/(hi-lo))*-100;
 }
-function genSignal(rsi,macd,closes,ema50,ema200,bb,stoch){
-  const price=closes[closes.length-1];let score=0;
-  if(rsi<30)score+=2;else if(rsi<45)score+=1;else if(rsi>70)score-=2;else if(rsi>55)score-=1;
-  if(macd.hist>0&&macd.line>0)score+=2;else if(macd.hist>0)score+=1;
-  else if(macd.hist<0&&macd.line<0)score-=2;else if(macd.hist<0)score-=1;
-  if(price>ema50&&ema50>ema200)score+=2;else if(price>ema50)score+=1;
-  else if(price<ema50&&ema50<ema200)score-=2;else if(price<ema50)score-=1;
-  if(price<bb.lower)score+=1;else if(price>bb.upper)score-=1;
-  if(stoch<20)score+=1;else if(stoch>80)score-=1;
-  return score>=3?'BUY':score<=-3?'SELL':'HOLD';
+function calcATR(h,l,c,p=14){
+  const trs=[];
+  for(let i=1;i<c.length;i++)
+    trs.push(Math.max(h[i]-l[i],Math.abs(h[i]-c[i-1]),Math.abs(l[i]-c[i-1])));
+  return trs.slice(-p).reduce((a,b)=>a+b,0)/Math.min(p,trs.length);
 }
-function calcStrength(rsi,macd,closes,ema50,bb,stoch){
-  const price=closes[closes.length-1];let pts=0;
-  if(rsi<30||rsi>70)pts+=20;else pts+=10;
-  if(Math.abs(macd.hist)>0)pts+=20;
-  if(price>ema50)pts+=20;
-  if(price<bb.lower||price>bb.upper)pts+=20;
-  if(stoch<20||stoch>80)pts+=20;
-  return Math.min(pts,100);
+function calcSupertrend(h,l,c,period=10,mult=3){
+  const atr=calcATR(h,l,c,period);
+  const mid=(h[h.length-1]+l[l.length-1])/2;
+  const lower=mid-mult*atr;
+  const trend=c[c.length-1]>lower?'up':'dn';
+  return{trend,lower,atr};
+}
+function calcVolRatio(v){
+  if(!v||v.length<20) return 1;
+  const recent=v[v.length-1]||0;
+  const avg=v.slice(-20,-1).filter(x=>x).reduce((a,b)=>a+b,0)/19;
+  return avg>0?recent/avg:1;
 }
 
+// ── RENDER ────────────────────────────────────────
 function renderCards(results){
   const el=document.getElementById('container');el.innerHTML='';
   const buy=results.filter(r=>!r.error&&r.signal==='BUY');
@@ -242,7 +409,7 @@ function renderCards(results){
     errs.forEach(r=>{const d=document.createElement('div');d.className='error-card';d.textContent=`${dispSym(r.sym)}: ${r.error}`;el.appendChild(d);});
   }
   const ok=results.filter(r=>!r.error).length;
-  document.getElementById('statusMsg').textContent=`✅ ${ok} رمز • ❌ ${errs.length} فشل`;
+  document.getElementById('statusMsg').textContent=`✅ ${ok} رمز • ❌ ${errs.length} فشل • ${mode==='mtf'?'🔗 MTF':'📊 فريم واحد'}`;
 }
 
 function card(r){
@@ -252,22 +419,75 @@ function card(r){
   const updn=r.change>=0?'up':'dn';
   const arrow=r.change>=0?'▲':'▼';
   const strColor=r.signal==='BUY'?'var(--green)':r.signal==='SELL'?'var(--red)':'#546e7a';
+
+  // MTF frames row
+  let mtfHtml='';
+  if(mode==='mtf' && r.frameSignals){
+    const frameLabels={'1h':'1H','1d':'1D','1w':'1W','4h':'4H'};
+    const agreeText={'full':'✅ اتفاق تام','partial':'⚡ اتفاق جزئي','conflict':'⚠️ تعارض'};
+    const agreeCls=r.agreement||'conflict';
+    mtfHtml=`
+      <div class="agree-badge ${agreeCls}">${agreeText[agreeCls]||''}</div>
+      <div class="mtf-row">
+        ${r.frames.map(tf=>{
+          const fs=r.frameSignals[tf];
+          if(!fs) return `<div class="mtf-box hold"><div class="mtf-tf">${frameLabels[tf]||tf}</div><div class="mtf-sig HOLD">--</div><div class="mtf-score">N/A</div></div>`;
+          const c2=fs.signal==='BUY'?'buy':fs.signal==='SELL'?'sell':'hold';
+          return `<div class="mtf-box ${c2}">
+            <div class="mtf-tf">${frameLabels[tf]||tf}</div>
+            <div class="mtf-sig ${fs.signal}">${fs.signal}</div>
+            <div class="mtf-score">${fs.strength}%</div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  }
+
+  // Indicators
+  const rsiCls=r.rsi<35?'bull':r.rsi>65?'bear':'neut';
+  const rsiTxt=r.rsi<35?'تشبع بيعي':r.rsi>65?'تشبع شرائي':'محايد';
+  const macdCls=r.macd&&r.macd.hist>0?'bull':'bear';
+  const macdTxt=r.macd&&r.macd.hist>0?'صاعد':'هابط';
+  const emaCls=r.price>r.ema50&&r.ema50>r.ema200?'bull':r.price<r.ema50&&r.ema50<r.ema200?'bear':'neut';
+  const stCls=r.st&&r.st.trend==='up'?'bull':'bear';
+  const stTxt=r.st&&r.st.trend==='up'?'▲ صاعد':'▼ هابط';
+  const willCls=r.willR<-80?'bull':r.willR>-20?'bear':'neut';
+  const volCls=r.volRatio>1.5?'bull':r.volRatio<0.7?'bear':'neut';
+
+  // Confidence dots
+  const dots=Math.round((r.confidence/100)*10);
+  const dotsHtml=Array.from({length:10},(_,i)=>`<div class="dot ${i<dots?'on '+cls:''}"></div>`).join('');
+  const confLabel=r.confidence>=80?'قوي جداً':r.confidence>=60?'قوي':r.confidence>=40?'متوسط':'ضعيف';
+
   div.innerHTML=`
-    <div class="card-left">
-      <div class="card-sym">${dispSym(r.sym)}</div>
-      <div class="card-name">${NAMES[r.sym]||r.sym}</div>
-      <div class="strength-wrap">
-        <div class="strength-bar"><div class="strength-fill" style="width:${r.strength}%;background:${strColor}"></div></div>
-        <div class="strength-val">${r.strength}%</div>
+    <div class="card-top">
+      <div>
+        <div class="card-sym">${dispSym(r.sym)}</div>
+        <div class="card-name">${NAMES[r.sym]||r.sym}</div>
       </div>
+      <div style="text-align:center">
+        <div class="card-price">${fmtPrice(r.price,r.sym)}</div>
+        <div class="card-change ${updn}">${arrow} ${Math.abs(r.change||0).toFixed(2)}%</div>
+      </div>
+      <div><div class="signal-badge ${r.signal}">${r.signal}</div></div>
     </div>
-    <div class="card-mid">
-      <div class="card-price">${fmtPrice(r.price,r.sym)}</div>
-      <div class="card-change ${updn}">${arrow} ${Math.abs(r.change).toFixed(2)}%</div>
+    ${mtfHtml}
+    <div class="strength-wrap">
+      <div class="strength-label">الثقة</div>
+      <div class="strength-bar"><div class="strength-fill" style="width:${r.confidence}%;background:${strColor}"></div></div>
+      <div class="strength-pct" style="color:${strColor}">${r.confidence}%</div>
     </div>
-    <div class="card-right">
-      <div class="signal-badge ${r.signal}">${r.signal}</div>
-      <div class="card-indicators">RSI ${r.rsi?r.rsi.toFixed(1):'--'}<br>MACD ${r.macd?(r.macd.hist>=0?'+':'')+r.macd.hist.toFixed(4):'--'}</div>
+    <div class="ind-grid">
+      <div class="ind-box"><div class="ind-label">RSI 14</div><div class="ind-val ${rsiCls}">${r.rsi?r.rsi.toFixed(1):'--'}</div><div class="ind-status ${rsiCls}">${rsiTxt}</div></div>
+      <div class="ind-box"><div class="ind-label">MACD</div><div class="ind-val ${macdCls}">${r.macd?(r.macd.hist>=0?'+':'')+r.macd.hist.toFixed(3):'--'}</div><div class="ind-status ${macdCls}">${macdTxt}</div></div>
+      <div class="ind-box"><div class="ind-label">EMA Trend</div><div class="ind-val ${emaCls}">${r.price>r.ema50?'▲':'▼'}</div><div class="ind-status ${emaCls}">${emaCls==='bull'?'صاعد':emaCls==='bear'?'هابط':'محايد'}</div></div>
+      <div class="ind-box"><div class="ind-label">Supertrend</div><div class="ind-val ${stCls}">${r.st?r.st.trend==='up'?'▲':'▼':'--'}</div><div class="ind-status ${stCls}">${stTxt}</div></div>
+      <div class="ind-box"><div class="ind-label">Williams%R</div><div class="ind-val ${willCls}">${r.willR?r.willR.toFixed(0):'--'}</div><div class="ind-status ${willCls}">${willCls==='bull'?'ذروة بيع':willCls==='bear'?'ذروة شراء':'محايد'}</div></div>
+      <div class="ind-box"><div class="ind-label">Volume</div><div class="ind-val ${volCls}">${r.volRatio?r.volRatio.toFixed(1)+'x':'--'}</div><div class="ind-status ${volCls}">${volCls==='bull'?'مرتفع':volCls==='bear'?'منخفض':'عادي'}</div></div>
+    </div>
+    <div class="conf-row">
+      <div class="conf-label">قوة الإشارة</div>
+      <div class="conf-dots">${dotsHtml}</div>
+      <div class="conf-text" style="color:${strColor}">${confLabel}</div>
     </div>`;
   return div;
 }
@@ -278,7 +498,7 @@ function dispSym(s){
 }
 function fmtPrice(p,s){
   if(!p) return '--';
-  if(s&&(s.includes('BTC')||s.includes('XAU'))) return '$'+p.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+  if(p>1000) return '$'+p.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
   if(p<0.01) return '$'+p.toFixed(6);
   if(p<1) return '$'+p.toFixed(4);
   if(p<100) return '$'+p.toFixed(3);
